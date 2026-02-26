@@ -11,6 +11,7 @@ import TechnicalDrawingsSection from "./component/TechnicalDrawingsSection";
 import EducationAwardsSection from "./component/EducationAwardsSection";
 import ContactSection from "./component/ContactSection";
 import About from "./component/About";
+import HorizontalLine from "@/components/HorizontalLine";
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";
 // import Experience from "./component/Experience";
@@ -35,6 +36,7 @@ export default function HomePage() {
               >
                 <Navbar />
                 <HeroSection />
+                <HorizontalLine />
                 <About />
                 <ProjectsSection />
                 <ExperienceSection />

@@ -1,13 +1,70 @@
+"use client";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Button } from "@/components/ui/button";
+import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
+import { SparklesText } from "@/components/ui/sparkles-text";
+import { motion } from "framer-motion";
+import { Download } from "lucide-react";
 import React from "react";
 
 export default function About() {
   return (
-    <div id="about" className="h-100">
-      <p>đay là about để giới thiệu bản thân </p>
-      <p>sẽ có chỗ để chứa video như link </p>
-      <a href="https://magicui.design/docs/components/hero-video-dialog">
-        https://magicui.design/docs/components/hero-video-dialog
-      </a>
-    </div>
+    <section id="about" className="relative w-full py-20 ">
+      <div className="max-w-screen-xl mx-auto px-6">
+        {/* heading & intro */}
+        <div>
+          <BlurFade delay={0.25} inView>
+            <SparklesText className="text-4xl md:text-7xl mb-6 text-center">
+              About me
+            </SparklesText>
+          </BlurFade>
+          <BlurFade delay={0.25 * 2} inView>
+            <p className="text-center text-lg max-w-4xl mx-auto mb-8">
+              With extensive experience in international luxury retail interior
+              architecture, I specialize in optimizing brand spaces through a
+              sophisticated blend of aesthetic vision and technical feasibility.
+              From flagship boutiques for Gucci Beauty in Paris to high-end
+              projects in Vietnam, my mission is to translate brand identities
+              into tangible, immersive spatial experiences.
+            </p>
+          </BlurFade>
+        </div>
+
+        {/* image */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex justify-center mb-12"
+        >
+          <HeroVideoDialog
+            className="block"
+            animationStyle="from-center"
+            videoSrc="https://www.youtube.com/embed/AmO9d88Ovfs"
+            thumbnailSrc="https://wallpapercave.com/wp/wp6514888.jpg"
+            thumbnailAlt="Dummy Video Thumbnail"
+          />
+        </motion.div>
+
+        {/* second paragraph & button */}
+        <BlurFade delay={0.25} inView>
+          <p className="text-center text-lg max-w-4xl mx-auto mb-8">
+            I believe a successful retail space transcends mere aesthetics; it
+            is a synergy of flawless operational flow, strict adherence to
+            global brand guidelines, and precise project coordination. Each
+            project represents a seamless journey from initial concept to
+            turnkey delivery, ensuring absolute client satisfaction and an
+            elevated customer experience.
+          </p>
+          <div className="flex justify-center">
+            <Button className=" font-semibold py-3 px-6 rounded-full transition cursor-pointer">
+              <Download />
+              Download CV
+            </Button>
+          </div>
+        </BlurFade>
+      </div>
+    </section>
   );
 }

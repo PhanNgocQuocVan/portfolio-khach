@@ -42,10 +42,8 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Bottom info bar (fixed to bottom of section) */}
         <div className="absolute bottom-6 left-0 right-0 px-6 pointer-events-auto z-50">
           <div className="contain-content mx-auto flex items-center justify-between gap-6">
-            {/* Left: down button + description */}
             <div className="flex items-center gap-4">
               <button
                 aria-label="scroll down"
