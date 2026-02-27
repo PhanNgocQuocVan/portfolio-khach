@@ -132,7 +132,7 @@ export default function HeroSection() {
           </div>
         </div>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
-          <div className="relative w-[25vw] h-[40vw] min-w-[250px] min-h-[375px] max-w-[500px] max-h-[750px] flex items-center justify-center transition-all duration-300">
+          <div className="relative w-[20vw] h-[35vw] min-w-[250px] min-h-[375px] max-w-[500px] max-h-[750px] flex items-center justify-center transition-all duration-300">
             {/* Halo/Shadow background */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 via-transparent to-purple-400/20 rounded-full blur-3xl" />
 
