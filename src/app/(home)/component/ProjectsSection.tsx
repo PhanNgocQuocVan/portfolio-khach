@@ -193,6 +193,7 @@ export default function ProjectsSection() {
                           alt={sw.name}
                           width={40}
                           height={40}
+                          unoptimized
                           className="w-full h-full object-contain rounded-lg transition-all duration-200"
                         />
                       </DockIcon>
