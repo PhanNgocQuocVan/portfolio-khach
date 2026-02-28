@@ -1,7 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
-import SegmentedButton from "./segmented-button"; // Đảm bảo đúng đường dẫn
+import SegmentedButton from "./segmented-button";
 import { AnimatedThemeToggler } from "./animated-theme-toggler";
+import { useLoadingStore } from "@/store/useLoadingStore";
 
 const navItems = [
   { id: "home", label: "Home" },

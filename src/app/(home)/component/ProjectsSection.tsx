@@ -1,4 +1,5 @@
 "use client";
+
 import { FilterSelect } from "@/components/ui/FilterSelect";
 import { LineShadowText } from "@/components/ui/line-shadow-text";
 import ProjectCard from "@/components/ui/ProjectCard";
@@ -8,10 +9,13 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Dock, DockIcon, DockItem, DockLabel } from "@/components/ui/dock";
 import { Button } from "@/components/ui/button";
-import { Project } from "@/type/project";
 import { cn } from "@/lib/utils";
+import { client } from "@/sanity/lib/client";
+import {
+  ProjectCardData,
+  PROJECTS_LIST_QUERY,
+} from "@/sanity/schemaTypes/queries";
 
-// Danh sách phần mềm cố định để map với Dock
 const SOFTWARE_LIST = [
   { name: "3DsMax", icon: "/images/sw/3DsMax.png" },
   { name: "Adobe", icon: "/images/sw/AdobePack.png" },
@@ -33,104 +37,41 @@ export default function ProjectsSection() {
   const shadowColor = isDark ? "white" : "black";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { amount: 0.1 });
-  const [visibleCount, setVisibleCount] = useState(6);
 
-  // State cho lọc kép
-  const [selectedCategory, setSelectedCategory] = useState(""); // Lọc theo Design/All
-  const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null); // Lọc theo Dock
+  // ── Fetch data từ Sanity ─────────────────────────────────────────
+  const [allProjects, setAllProjects] = useState<ProjectCardData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setVisibleCount(6); // Reset về 2 dòng đầu tiên
+    client
+      .fetch<ProjectCardData[]>(PROJECTS_LIST_QUERY)
+      .then((data) => setAllProjects(data ?? []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // ── Filter ───────────────────────────────────────────────────────
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(6);
+
+  useEffect(() => {
+    setVisibleCount(6);
   }, [selectedCategory, selectedSoftware]);
 
-  const allProjects = [
-    {
-      id: 1,
-      title: "Project One",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "Lumion"],
-      category: ["commercial"],
-    },
-    {
-      id: 2,
-      title: "Project Two",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "SketchUp", "Enscape"],
-      category: ["design"],
-    },
-    {
-      id: 3,
-      title: "Project Three",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Lumion", "SketchUp", "Enscape"],
-      category: ["design"],
-    },
-    {
-      id: 4,
-      title: "Project Four",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "SketchUp", "Enscape"],
-      category: ["retail"],
-    },
-    {
-      id: 5,
-      title: "Project Five",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "Enscape"],
-      category: ["design"],
-    },
-    {
-      id: 6,
-      title: "Project Six",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "SketchUp"],
-      category: ["commercial"],
-    },
-    {
-      id: 7,
-      title: "Project Seven",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["Revit", "SketchUp", "Enscape"],
-      category: ["design"],
-    },
-    {
-      id: 8,
-      title: "Project Eight",
-      description: "toi là van vui vẻ, toi là developer",
-      software: ["SketchUp", "Enscape"],
-      category: ["design"],
-    },
-  ];
-
-  // Logic lọc kép (Memoized để tối ưu hiệu năng)
   const filteredProjects = useMemo(() => {
-    return allProjects.filter((project) => {
-      // 1. Lọc theo Category (FilterSelect)
-      const matchesCategory =
-        selectedCategory === "" || project.category.includes(selectedCategory);
-
-      // 2. Lọc theo Software (Dock)
-      // Lưu ý: Tên trên Dock phải khớp hoặc map đúng với tên trong software[] của project
-      const matchesSoftware =
-        !selectedSoftware ||
-        project.software.some((sw) =>
-          sw
-            .toLowerCase()
-            .includes(selectedSoftware.toLowerCase().replace(" ", "")),
-        );
-
-      return matchesCategory && matchesSoftware;
+    return allProjects.filter((p) => {
+      const matchCategory =
+        !selectedCategory || p.category?.includes(selectedCategory);
+      const matchSoftware =
+        !selectedSoftware || p.software?.includes(selectedSoftware);
+      return matchCategory && matchSoftware;
     });
-  }, [selectedCategory, selectedSoftware]);
+  }, [allProjects, selectedCategory, selectedSoftware]);
 
   const displayedProjects = filteredProjects.slice(0, visibleCount);
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 6); // Mỗi lần nhấn hiện thêm 6 cái (2 dòng tiếp theo)
-  };
 
-  const toggleSoftware = (swName: string) => {
-    setSelectedSoftware((prev) => (prev === swName ? null : swName));
-  };
+  const toggleSoftware = (name: string) =>
+    setSelectedSoftware((prev) => (prev === name ? null : name));
 
   return (
     <section
@@ -153,7 +94,6 @@ export default function ProjectsSection() {
               </LineShadowText>
             </h2>
             <div className="flex items-center gap-4">
-              {/* Nút reset nhanh nếu đang có filter */}
               {(selectedCategory || selectedSoftware) && (
                 <Button
                   variant="link"
@@ -161,9 +101,9 @@ export default function ProjectsSection() {
                     setSelectedCategory("");
                     setSelectedSoftware(null);
                   }}
-                  className="text-xs opacity-50 hover:opacity-100"
+                  className="text-xs opacity-50 hover:opacity-100 cursor-pointer"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </Button>
               )}
               <FilterSelect
@@ -175,12 +115,22 @@ export default function ProjectsSection() {
           </div>
         </motion.div>
 
-        {/* Hiển thị thông báo khi không có dự án nào thỏa mãn */}
-        {filteredProjects.length === 0 ? (
+        {/* Loading skeleton */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse space-y-3">
+                <div className="rounded-xl aspect-[4/3] bg-muted" />
+                <div className="h-3 bg-muted rounded w-2/3" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="h-64 flex items-center justify-center text-zinc-500 italic"
+            className="h-64 flex items-center justify-center text-foreground/40 italic"
           >
             No projects found with the selected filters.
           </motion.div>
@@ -189,7 +139,7 @@ export default function ProjectsSection() {
             <AnimatePresence mode="popLayout">
               {displayedProjects.map((project, i) => (
                 <motion.div
-                  key={project.id}
+                  key={project._id}
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -203,19 +153,21 @@ export default function ProjectsSection() {
           </div>
         )}
       </div>
-      {visibleCount < filteredProjects.length && (
+
+      {/* Load more */}
+      {!loading && visibleCount < filteredProjects.length && (
         <div className="mt-20 text-center">
           <Button
             variant="ghost"
-            onClick={handleLoadMore}
-            className="px-3 rounded-2xl hover:bg-primary/10 font-medium cursor-pointer "
+            onClick={() => setVisibleCount((p) => p + 6)}
+            className="px-3 rounded-2xl hover:bg-primary/10 font-medium cursor-pointer"
           >
             Read more
           </Button>
         </div>
       )}
 
-      {/* Dock Area */}
+      {/* Dock — fixed, hiện khi section in view */}
       <AnimatePresence>
         {isInView && (
           <motion.div
@@ -229,12 +181,11 @@ export default function ProjectsSection() {
               <Dock>
                 {SOFTWARE_LIST.map((sw) => {
                   const isSelected = selectedSoftware === sw.name;
-
                   return (
                     <DockItem
                       key={sw.name}
                       onClick={() => toggleSoftware(sw.name)}
-                      className="flex flex-col items-center relative"
+                      className="flex flex-col items-center relative cursor-pointer"
                     >
                       <DockIcon>
                         <Image
@@ -242,13 +193,10 @@ export default function ProjectsSection() {
                           alt={sw.name}
                           width={40}
                           height={40}
-                          className={cn(
-                            "w-full h-full object-contain rounded-lg transition-transform",
-                          )}
+                          className="w-full h-full object-contain rounded-lg transition-all duration-200"
                         />
                       </DockIcon>
                       <DockLabel>{sw.name}</DockLabel>
-
                       <div className="absolute -bottom-1 flex justify-center w-full">
                         <motion.span
                           initial={false}
@@ -256,7 +204,7 @@ export default function ProjectsSection() {
                             scale: isSelected ? 1 : 0,
                             opacity: isSelected ? 1 : 0,
                           }}
-                          className="h-1 w-1 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.8)]"
+                          className="h-1 w-1 rounded-full bg-primary"
                         />
                       </div>
                     </DockItem>

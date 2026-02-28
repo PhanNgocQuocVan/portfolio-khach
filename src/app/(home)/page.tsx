@@ -12,12 +12,13 @@ import EducationAwardsSection from "./component/EducationAwardsSection";
 import ContactSection from "./component/ContactSection";
 import About from "./component/About";
 import HorizontalLine from "@/components/HorizontalLine";
+import { useLoadingStore } from "@/store/useLoadingStore";
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";
 // import Experience from "./component/Experience";
 
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const { hasLoaded, setHasLoaded } = useLoadingStore();
 
   return (
     <main className="relative min-h-screen w-full">
@@ -25,8 +26,8 @@ export default function HomePage() {
         <div className="bg-black h-screen w-full"></div>
         <div className="absolute top-0 w-full">
           <AnimatePresence mode="wait">
-            {isLoading ? (
-              <Preloader key="loader" onComplete={() => setIsLoading(false)} />
+            {!hasLoaded ? (
+              <Preloader key="loader" onComplete={() => setHasLoaded(true)} />
             ) : (
               <motion.div
                 key="content"
