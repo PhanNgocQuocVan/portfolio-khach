@@ -7,7 +7,6 @@ import ColorBends from "@/components/ColorBends";
 import HeroSection from "./component/HeroSection";
 import ProjectsSection from "./component/ProjectsSection";
 import ExperienceSection from "./component/ExperienceSection";
-import TechnicalDrawingsSection from "./component/TechnicalDrawingsSection";
 import EducationAwardsSection from "./component/EducationAwardsSection";
 import ContactSection from "./component/ContactSection";
 import About from "./component/About";
@@ -41,7 +40,6 @@ export default function HomePage() {
                 <About />
                 <ProjectsSection />
                 <ExperienceSection />
-                <TechnicalDrawingsSection />
                 <EducationAwardsSection />
                 <ContactSection />
               </motion.div>

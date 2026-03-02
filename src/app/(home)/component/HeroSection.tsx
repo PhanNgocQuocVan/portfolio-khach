@@ -1,17 +1,22 @@
 "use client";
 import ColorBends from "@/components/ColorBends";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export default function HeroSection() {
+  const containerRef = useRef(null);
+
+  const isInView = useInView(containerRef, { amount: 0.1 });
+
   return (
     <section
       id="home"
+      ref={containerRef}
       className="relative h-screen w-full flex items-center justify-center overflow-hidden"
     >
-      {/* 1. Background riêng của Section 1 */}
-      <div className="bg-black w-full h-full">
-        <ColorBends />
+      <div className="bg-black w-full h-full absolute inset-0">
+        {isInView ? <ColorBends /> : <div className="w-full h-full bg-black" />}
       </div>
 
       {/* 2. Nội dung Hero Section */}
