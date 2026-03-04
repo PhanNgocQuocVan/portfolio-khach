@@ -2,6 +2,7 @@
 import ColorBends from "@/components/ColorBends";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { motion, useInView } from "framer-motion";
+import Image from "next/image";
 import { useRef } from "react";
 
 export default function HeroSection() {
@@ -16,7 +17,13 @@ export default function HeroSection() {
       className="relative h-screen w-full flex items-center justify-center overflow-hidden"
     >
       <div className="bg-black w-full h-full absolute inset-0">
-        {isInView ? <ColorBends /> : <div className="w-full h-full bg-black" />}
+        {/* {isInView ? <ColorBends /> : <div className="w-full h-full bg-black" />} */}
+        <Image
+          src="/images/5685391_58472.jpg"
+          alt="Hero background"
+          fill
+          className="object-cover"
+        />
       </div>
 
       {/* 2. Nội dung Hero Section */}

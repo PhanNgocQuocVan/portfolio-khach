@@ -12,6 +12,7 @@ import ContactSection from "./component/ContactSection";
 import About from "./component/About";
 import HorizontalLine from "@/components/HorizontalLine";
 import { useLoadingStore } from "@/store/useLoadingStore";
+import Footer from "@/components/footer";
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";
 // import Experience from "./component/Experience";
@@ -21,32 +22,28 @@ export default function HomePage() {
 
   return (
     <main className="relative min-h-screen w-full">
-      <div className="relative">
-        <div className="bg-black h-screen w-full"></div>
-        <div className="absolute top-0 w-full">
-          <AnimatePresence mode="wait">
-            {!hasLoaded ? (
-              <Preloader key="loader" onComplete={() => setHasLoaded(true)} />
-            ) : (
-              <motion.div
-                key="content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-              >
-                <Navbar />
-                <HeroSection />
-                <HorizontalLine />
-                <About />
-                <ProjectsSection />
-                <ExperienceSection />
-                <EducationAwardsSection />
-                <ContactSection />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      <AnimatePresence mode="wait">
+        {!hasLoaded ? (
+          <Preloader key="loader" onComplete={() => setHasLoaded(true)} />
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <Navbar />
+            <HeroSection />
+            <HorizontalLine />
+            <About />
+            <ProjectsSection />
+            <ExperienceSection />
+            <EducationAwardsSection />
+            <ContactSection />
+            <Footer />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
