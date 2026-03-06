@@ -6,6 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronLeft, ChevronRight, Star, CheckCircle2 } from "lucide-react";
+import emailjs from "@emailjs/browser";
+
+// ─── EmailJS config ─────────────────────────────────────────────────────────────
+const EMAILJS_SERVICE_ID = "service_9jb3a16";
+const EMAILJS_TEMPLATE_NOTIFY = "template_j4hy3r7"; // thông báo về bạn
+const EMAILJS_TEMPLATE_THANKYOU = "template_wrzx4fj"; // cảm ơn khách
+const EMAILJS_PUBLIC_KEY = "SEFA3GnZWjYcFqLRp";
 
 // ─── Slides data ───────────────────────────────────────────────────────────────
 const slides = [
@@ -55,9 +62,6 @@ const contactSchema = z.object({
     .min(1, "Message is required")
     .min(10, "At least 10 characters")
     .max(1000, "Max 1000 characters"),
-  privacy: z.boolean().refine((val) => val === true, {
-    message: "You must agree to the privacy policy",
-  }),
 });
 
 type ContactFormValues = z.infer<typeof contactSchema>;
@@ -75,6 +79,7 @@ function FieldError({ message }: { message?: string }) {
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
 
   const prev = () => setCurrent((c) => (c - 1 + slides.length) % slides.length);
@@ -93,15 +98,50 @@ export default function ContactSection() {
       email: "",
       phone: "",
       message: "",
-      privacy: false,
     },
   });
 
   const onSubmit = async (data: ContactFormValues) => {
-    await new Promise((r) => setTimeout(r, 1000));
-    console.log("Submitted:", data);
-    setSubmitted(true);
-    reset();
+    console.log("vuive");
+
+    setSubmitError(null);
+
+    // Các biến template dùng chung
+    const templateParams = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      full_name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      phone: data.phone,
+      message: data.message,
+      reply_to: data.email,
+    };
+
+    try {
+      // Gửi song song cả 2 email
+      await Promise.all([
+        // 1. Thông báo về bạn
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_NOTIFY,
+          templateParams,
+          EMAILJS_PUBLIC_KEY,
+        ),
+        // 2. Cảm ơn khách
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_THANKYOU,
+          templateParams,
+          EMAILJS_PUBLIC_KEY,
+        ),
+      ]);
+
+      setSubmitted(true);
+      reset();
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      setSubmitError("Failed to send message. Please try again later.");
+    }
   };
 
   const inputClass = (hasError: boolean) =>
@@ -130,7 +170,7 @@ export default function ContactSection() {
         </h2>
         <p className="text-center max-w-2xl mx-auto">
           Whether you have a specific project in mind or just want to say hi, my
-          inbox is always open. Let’s create something timeless
+          inbox is always open. Let's create something timeless
         </p>
       </div>
       <div className="max-w-screen-xl mx-auto px-6 w-full">
@@ -151,7 +191,7 @@ export default function ContactSection() {
               Let's work together
             </h2>
             <p className="text-sm mb-6 text-black/90">
-              Have a project in mind? Tell me more about it and let’s start a
+              Have a project in mind? Tell me more about it and let's start a
               conversation.
             </p>
 
@@ -244,7 +284,6 @@ export default function ContactSection() {
                     Phone number
                   </label>
                   <div className="flex gap-2">
-                    {/* Country selector */}
                     <div className="flex-1">
                       <input
                         id="phone"
@@ -275,6 +314,13 @@ export default function ContactSection() {
                   <FieldError message={errors.message?.message} />
                 </div>
 
+                {/* Error message */}
+                {submitError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                    ⚠ {submitError}
+                  </p>
+                )}
+
                 {/* Submit */}
                 <button
                   type="submit"
@@ -287,7 +333,7 @@ export default function ContactSection() {
                   {isSubmitting ? (
                     <>
                       <svg
-                        className="animate-spin h-4 w-4 text-black"
+                        className="animate-spin h-4 w-4 text-white"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -318,7 +364,6 @@ export default function ContactSection() {
 
           {/* ── Right: Image + Testimonial ── */}
           <div className="hidden md:flex md:w-1/2 relative flex-col">
-            {/* Placeholder — thay bằng: <Image src="/your-image.jpg" alt="..." fill className="object-cover" /> */}
             <div className="absolute inset-0 overflow-hidden">
               {slides.map((slide, i) => (
                 <img
