@@ -1,7 +1,31 @@
 import React from "react";
 import { TextHoverEffect } from "./ui/text-hover-effect";
+import { AnimatedTooltip } from "./ui/animated-tooltip";
 
 export default function Footer() {
+  const socialLinks = [
+    {
+      id: 1,
+      name: "Zalo",
+      url: "https://zalo.me/yourhandle",
+      image: "images/zalo.png",
+      color: "#0068FF",
+    },
+    {
+      id: 2,
+      name: "linkedin",
+      url: "https://linkedin.com/in/yourprofile",
+      image: "images/linkind.png",
+      color: "#0A66C2",
+    },
+    {
+      id: 3,
+      name: "Whatsapp",
+      url: "https://wa.me/yourphonenumber",
+      image: "images/whatsapp.png",
+      color: "#25D366",
+    },
+  ];
   return (
     <footer className="w-full bg-[#1e2d25] transition-colors duration-300">
       {/* ── Top bar ── */}
@@ -31,17 +55,21 @@ export default function Footer() {
           </a>
         </div>
 
-        {/* Right: nav links */}
-        <nav className="hidden md:flex items-center gap-6">
-          {["About", "Projects", "Experience", "Contact"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="text-sm text-white  hover:text-[#c4a262] transition-colors"
-            >
-              {item}
-            </a>
-          ))}
+        {/* Right: links */}
+        <nav className="hidden md:flex items-center gap-4 pr-8">
+          <div className="flex items-center gap-3">
+            {/* Media label với styling đẹp hơn */}
+            <div className="flex items-center gap-1.5">
+              <span className="w-1 h-4 bg-amber-400 rounded-full"></span>
+              <span className="text-xs font-semibold tracking-[0.2em] uppercase text-white/50">
+                Media
+              </span>
+            </div>
+            {/* Avatars */}
+            <div className="flex flex-row items-center justify-center">
+              <AnimatedTooltip items={socialLinks} />
+            </div>
+          </div>
         </nav>
       </div>
 
