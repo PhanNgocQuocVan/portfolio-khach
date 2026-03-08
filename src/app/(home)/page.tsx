@@ -13,6 +13,7 @@ import About from "./component/About";
 import HorizontalLine from "@/components/HorizontalLine";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import Footer from "@/components/footer";
+import Skillssection from "./component/Skillssection";
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";
 // import Experience from "./component/Experience";
@@ -36,6 +37,7 @@ export default function HomePage() {
             <HeroSection />
             <HorizontalLine />
             <About />
+            <Skillssection />
             <ProjectsSection />
             <ExperienceSection />
             <EducationAwardsSection />

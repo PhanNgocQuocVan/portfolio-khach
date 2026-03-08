@@ -18,38 +18,55 @@ export const structure: StructureResolver = (S) =>
 
       S.divider(),
 
-      // ── PROJECTS ────────────────────────────────────────
+      // ── PROJECTS — click thẳng vào danh sách luôn ───────
       S.listItem()
         .title("Quản lý Projects")
         .icon(() => "🗂️")
+        .schemaType("project")
         .child(
-          S.list()
+          S.documentTypeList("project")
             .title("Quản lý Projects")
-            .items([
-              // 1. Danh sách tất cả projects
-              S.listItem()
-                .title("Tất cả Projects")
-                .icon(() => "📋")
-                .child(
-                  S.documentTypeList("project")
-                    .title("Tất cả Projects")
-                    .defaultOrdering([{ field: "year", direction: "desc" }]),
-                ),
+            .defaultOrdering([{ field: "year", direction: "desc" }])
+            .child((id) => S.document().documentId(id).schemaType("project")),
+        ),
 
-              S.divider(),
+      S.divider(),
 
-              // 2. Tạo project mới (shortcut tiện lợi)
-              S.listItem()
-                .title("+ Thêm Project mới")
-                .icon(() => "➕")
-                .child(S.editor().schemaType("project").title("Project mới")),
-            ]),
+      // ── EXPERIENCE — click thẳng vào danh sách ──────────
+      S.listItem()
+        .title("Quản lý Experience")
+        .icon(() => "💼")
+        .schemaType("experience")
+        .child(
+          S.documentTypeList("experience")
+            .title("Quản lý Experience")
+            .defaultOrdering([{ field: "date", direction: "desc" }])
+            .child((id) =>
+              S.document().documentId(id).schemaType("experience"),
+            ),
+        ),
+
+      S.divider(),
+
+      // ── EDUCATION ────────────────────────────────────────
+      S.listItem()
+        .title("Quản lý Education & Certification")
+        .icon(() => "🎓")
+        .schemaType("education")
+        .child(
+          S.documentTypeList("education")
+            .title("Education & Certification")
+            .defaultOrdering([{ field: "order", direction: "asc" }])
+            .child((id) => S.document().documentId(id).schemaType("education")),
         ),
 
       S.divider(),
 
       // ── Ẩn các document type đã được quản lý ở trên ────
       ...S.documentTypeListItems().filter(
-        (listItem) => !["cv", "project"].includes(listItem.getId() as string),
+        (listItem) =>
+          !["cv", "project", "experience", "education"].includes(
+            listItem.getId() as string,
+          ),
       ),
     ]);

@@ -57,3 +57,51 @@ export interface ProjectDetailData extends ProjectCardData {
   heroImage?: string;
   contentBlocks?: ContentBlock[];
 }
+
+export const EXPERIENCES_QUERY = `
+  *[_type == "experience"] | order(date desc) {
+    _id,
+    title,
+    date,
+    version,
+    tags,
+    description,
+    "image": image.asset->url
+  }
+`;
+
+export interface ExperienceData {
+  _id: string;
+  title: string;
+  date: string;
+  version?: string;
+  tags?: string[];
+  description?: string;
+  image?: string;
+}
+
+// Thêm vào file lib/sanity/queries.ts
+
+export const EDUCATION_QUERY = `
+  *[_type == "education"] | order(order asc, year desc) {
+    _id,
+    title,
+    label,
+    issuer,
+    year,
+    description,
+    type,
+    "image": image.asset->url
+  }
+`;
+
+export interface EducationData {
+  _id: string;
+  title: string;
+  label?: string;
+  issuer?: string;
+  year?: string;
+  description?: string;
+  type?: "degree" | "certificate";
+  image?: string;
+}

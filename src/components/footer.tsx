@@ -88,14 +88,15 @@ export default function Footer() {
         {/* Right: social links */}
         <div className="flex items-center gap-4">
           {[
-            { label: "LinkedIn", href: "#" },
-            { label: "Behance", href: "#" },
-            { label: "Instagram", href: "#" },
+            {
+              label: "Portfolio drive link",
+              href: "https://drive.google.com/file/d/1tQtbFTdxclnGLHbMrgSsz4PFf236lTmm/view",
+            },
           ].map(({ label, href }) => (
             <a
               key={label}
               href={href}
-              className="text-xs text-white  hover:text-neutral-900  transition-colors"
+              className="text-xs text-white  hover:text-[#c4a262] hover:underline transition-colors"
             >
               {label}
             </a>

@@ -2,22 +2,23 @@
 import { defineField, defineType } from "sanity";
 
 const SOFTWARE_OPTIONS = [
-  { title: "3DsMax", value: "3DsMax" },
-  { title: "Adobe", value: "Adobe" },
-  { title: "Archicad", value: "Archicad" },
-  { title: "CAD", value: "CAD" },
-  { title: "Enscape", value: "Enscape" },
-  { title: "Lumion", value: "Lumion" },
-  { title: "MS Office", value: "MS Office" },
-  { title: "Procreate", value: "Procreate" },
-  { title: "Rhino", value: "Rhino" },
-  { title: "Revit", value: "Revit" },
+  { title: "Adobe CC", value: "Adobe CC" },
+  { title: "AutoCAD", value: "AutoCAD" },
   { title: "SketchUp", value: "SketchUp" },
-  { title: "TwinMotion", value: "TwinMotion" },
+  { title: "3DsMax", value: "3DsMax" },
   { title: "Vray", value: "Vray" },
+  { title: "TwinMotion", value: "TwinMotion" },
+  { title: "Rhino", value: "Rhino" },
+  { title: "Archicad", value: "Archicad" },
+  { title: "Revit", value: "Revit" },
 ];
 
-const CATEGORY_OPTIONS = [{ title: "Design", value: "design" }];
+const CATEGORY_OPTIONS = [
+  { title: "Concept Design", value: "concept-design" },
+  { title: "Technical Drawings", value: "technical-drawings" },
+  { title: "3D & Render", value: "3d-render" },
+  { title: "Coordination & Execution", value: "coordination" },
+];
 
 export default defineType({
   name: "project",
@@ -92,7 +93,7 @@ export default defineType({
       of: [{ type: "string" }],
       options: {
         list: CATEGORY_OPTIONS,
-        layout: "grid",
+        // không dùng layout: "grid" vì tên category dài, để list dọc cho dễ đọc
       },
     }),
 

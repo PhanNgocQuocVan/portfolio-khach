@@ -1,26 +1,19 @@
+import { EducationData } from "@/sanity/schemaTypes/queries";
 import React, { useRef, useEffect, useState } from "react";
 
-export interface BentoCardProps {
-  color?: string;
-  title?: string;
-  description?: string;
-  label?: string;
-  textAutoHide?: boolean;
-  disableAnimations?: boolean;
-}
-
 export interface BentoProps {
+  items: EducationData[]; // ← nhận data từ ngoài, không hardcode
   textAutoHide?: boolean;
-  enableStars?: boolean;
   enableSpotlight?: boolean;
   enableBorderGlow?: boolean;
   disableAnimations?: boolean;
   spotlightRadius?: number;
-  particleCount?: number;
-  enableTilt?: boolean;
   glowColor?: string;
-  clickEffect?: boolean;
-  enableMagnetism?: boolean;
+  clickEffect?: boolean; // API-compat
+  enableMagnetism?: boolean; // API-compat
+  enableStars?: boolean; // API-compat
+  enableTilt?: boolean; // API-compat
+  particleCount?: number; // API-compat
   theme?: "dark" | "light";
 }
 
@@ -28,73 +21,41 @@ const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = "196, 162, 98";
 const MOBILE_BREAKPOINT = 768;
 
-interface CertCardProps extends BentoCardProps {
-  image?: string;
-  issuer?: string;
-  year?: string;
-  type?: "degree" | "certificate";
+// ─── Tính grid-column cho từng card theo pattern lặp ──────────────────────
+// Pattern chuẩn mỗi 5 card (1 chu kỳ):
+//   pos 0,1   → hàng đầu: mỗi card 3/6 cột  (2 card × 3 cột)
+//   pos 2,3,4 → hàng hai: mỗi card 2/6 cột  (3 card × 2 cột)
+//
+// Chu kỳ cuối không đủ 5 → chia đều 6 cột cho số card còn lại
+function getSmartGridColumn(index: number, total: number): string {
+  const cycleIndex = Math.floor(index / 5);
+  const posInCycle = index % 5;
+  const cycleStart = cycleIndex * 5;
+  const remaining = Math.min(5, total - cycleStart);
+
+  // Chu kỳ đủ 5 → layout chuẩn
+  if (remaining === 5) {
+    const cols = ["1 / 4", "4 / 7", "1 / 3", "3 / 5", "5 / 7"];
+    return cols[posInCycle];
+  }
+
+  // Special cases cho đẹp hơn
+  if (remaining === 1) return "1 / 7"; // 1 card full width
+  if (remaining === 2) return posInCycle === 0 ? "1 / 4" : "4 / 7"; // 2 card × 3 cột
+  if (remaining === 3) {
+    // 3 card × 2 cột
+    return ["1 / 3", "3 / 5", "5 / 7"][posInCycle];
+  }
+  if (remaining === 4) {
+    // 4 card: 3+3 / 2+2+2 pattern nhưng chỉ có 4
+    // hàng 1: card 0 (3 cột) + card 1 (3 cột), hàng 2: card 2 (3 cột) + card 3 (3 cột)
+    return posInCycle % 2 === 0 ? "1 / 4" : "4 / 7";
+  }
+
+  return "auto";
 }
 
-const cardData: CertCardProps[] = [
-  {
-    color: "var(--card-bg)",
-    title: "Bachelor of Computer Science",
-    description: "Major in Software Engineering & Artificial Intelligence",
-    label: "University Degree",
-    issuer: "Vietnam National University",
-    year: "2021",
-    type: "degree",
-    image:
-      "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80",
-  },
-  {
-    color: "var(--card-bg)",
-    title: "AWS Certified Solutions Architect",
-    description:
-      "Professional level certification for cloud architecture design",
-    label: "Cloud Certification",
-    issuer: "Amazon Web Services",
-    year: "2023",
-    type: "certificate",
-    image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
-  },
-  {
-    color: "var(--card-bg)",
-    title: "Google Professional Data Engineer",
-    description: "Designing and building data processing systems on GCP",
-    label: "Data Engineering",
-    issuer: "Google Cloud",
-    year: "2022",
-    type: "certificate",
-    image:
-      "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&q=80",
-  },
-  {
-    color: "var(--card-bg)",
-    title: "Meta React Developer",
-    description: "Front-End development with React and advanced UI patterns",
-    label: "Frontend",
-    issuer: "Meta / Coursera",
-    year: "2023",
-    type: "certificate",
-    image:
-      "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-  },
-  {
-    color: "var(--card-bg)",
-    title: "IELTS Academic",
-    description: "Score 7.5 — C1 Proficiency in Academic English",
-    label: "Language",
-    issuer: "British Council",
-    year: "2020",
-    type: "certificate",
-    image:
-      "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80",
-  },
-];
-
-// ─── Spotlight: rAF-throttled, zero GSAP ──────────────────────────────────
+// ─── Spotlight ────────────────────────────────────────────────────────────
 const GlobalSpotlight: React.FC<{
   gridRef: React.RefObject<HTMLDivElement | null>;
   disableAnimations?: boolean;
@@ -110,7 +71,6 @@ const GlobalSpotlight: React.FC<{
 }) => {
   useEffect(() => {
     if (disableAnimations || !gridRef?.current || !enabled) return;
-
     let rafId: number | null = null;
     const section = gridRef.current.closest(
       ".bento-section",
@@ -125,21 +85,17 @@ const GlobalSpotlight: React.FC<{
       rafId = requestAnimationFrame(() => {
         rafId = null;
         if (!gridRef.current) return;
-
         const sectionRect = section.getBoundingClientRect();
         const inside =
           e.clientX >= sectionRect.left &&
           e.clientX <= sectionRect.right &&
           e.clientY >= sectionRect.top &&
           e.clientY <= sectionRect.bottom;
-
         const cards = gridRef.current.querySelectorAll<HTMLElement>(".card");
-
         if (!inside) {
           cards.forEach((c) => c.style.setProperty("--glow-intensity", "0"));
           return;
         }
-
         cards.forEach((card) => {
           const r = card.getBoundingClientRect();
           const cx = r.left + r.width / 2;
@@ -149,16 +105,18 @@ const GlobalSpotlight: React.FC<{
             Math.hypot(e.clientX - cx, e.clientY - cy) -
               Math.max(r.width, r.height) / 2,
           );
-
           let intensity = 0;
           if (dist <= proximity) intensity = 1;
           else if (dist <= fadeDistance)
             intensity = (fadeDistance - dist) / (fadeDistance - proximity);
-
-          const relX = ((e.clientX - r.left) / r.width) * 100;
-          const relY = ((e.clientY - r.top) / r.height) * 100;
-          card.style.setProperty("--glow-x", `${relX}%`);
-          card.style.setProperty("--glow-y", `${relY}%`);
+          card.style.setProperty(
+            "--glow-x",
+            `${((e.clientX - r.left) / r.width) * 100}%`,
+          );
+          card.style.setProperty(
+            "--glow-y",
+            `${((e.clientY - r.top) / r.height) * 100}%`,
+          );
           card.style.setProperty("--glow-intensity", intensity.toString());
           card.style.setProperty("--glow-radius", `${spotlightRadius}px`);
         });
@@ -183,32 +141,10 @@ const GlobalSpotlight: React.FC<{
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [gridRef, disableAnimations, enabled, spotlightRadius, glowColor]);
-
   return null;
 };
 
-// ─── Grid wrapper ──────────────────────────────────────────────────────────
-const BentoCardGrid: React.FC<{
-  children: React.ReactNode;
-  gridRef?: React.RefObject<HTMLDivElement | null>;
-  bgColor?: string;
-}> = ({ children, gridRef, bgColor }) => (
-  <div
-    className="bento-section grid gap-2 p-3 w-full max-w-full select-none relative"
-    style={{
-      fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.5rem)",
-      backgroundColor: bgColor ?? "transparent",
-      borderRadius: "16px",
-      width: "100%",
-      maxWidth: "100%",
-    }}
-    ref={gridRef}
-  >
-    {children}
-  </div>
-);
-
-// ─── Mobile detection ──────────────────────────────────────────────────────
+// ─── Mobile detection ─────────────────────────────────────────────────────
 const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -220,7 +156,7 @@ const useMobileDetection = () => {
   return isMobile;
 };
 
-// ─── Image thumbnail ───────────────────────────────────────────────────────
+// ─── Image thumbnail ──────────────────────────────────────────────────────
 const CertImageThumbnail: React.FC<{
   src: string;
   alt: string;
@@ -295,18 +231,20 @@ const CertImageThumbnail: React.FC<{
   </div>
 );
 
-// ─── Card content ──────────────────────────────────────────────────────────
+// ─── Card content ─────────────────────────────────────────────────────────
 const CertCardContent: React.FC<{
-  card: CertCardProps;
+  card: EducationData;
   textAutoHide: boolean;
   onImageClick: (src: string) => void;
 }> = ({ card, textAutoHide, onImageClick }) => (
   <>
-    <CertImageThumbnail
-      src={card.image ?? ""}
-      alt={card.title ?? "Certificate"}
-      onImageClick={onImageClick}
-    />
+    {card.image && (
+      <CertImageThumbnail
+        src={card.image}
+        alt={card.title}
+        onImageClick={onImageClick}
+      />
+    )}
     <div
       className="card__header flex justify-between gap-3 relative"
       style={{ color: "var(--label-color)" }}
@@ -347,35 +285,27 @@ const CertCardContent: React.FC<{
   </>
 );
 
-// ─── Main export ───────────────────────────────────────────────────────────
+// ─── Main export ──────────────────────────────────────────────────────────
 const MagicBento: React.FC<BentoProps> = ({
+  items, // ← data từ Sanity
   textAutoHide = true,
-  enableStars = true, // API-compat only – particles removed
   enableSpotlight = true,
   enableBorderGlow = true,
   disableAnimations = false,
   spotlightRadius = DEFAULT_SPOTLIGHT_RADIUS,
-  particleCount, // API-compat only – unused
-  enableTilt = false, // API-compat only – 3D tilt removed
   glowColor = DEFAULT_GLOW_COLOR,
-  clickEffect = true, // API-compat only – ripple removed
-  enableMagnetism = true, // API-compat only – magnetism removed
+  clickEffect = true,
+  enableMagnetism = true,
   theme = "dark",
 }) => {
   const [modalImage, setModalImage] = useState<string | null>(null);
-  const handleCardClick = (img?: string) => {
-    if (img) setModalImage(img);
-  };
-
   const isLight = theme === "light";
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
 
   const baseClassName = (withGlow: boolean) =>
-    `card flex flex-col justify-between relative min-h-[200px] w-full max-w-full p-4 rounded-[20px] border border-solid font-light overflow-hidden${
-      withGlow ? " card--border-glow" : ""
-    }`;
+    `card flex flex-col justify-between relative min-h-[200px] w-full max-w-full p-4 rounded-[20px] border border-solid font-light overflow-hidden${withGlow ? " card--border-glow" : ""}`;
 
   const cardStyle = {
     backgroundColor: "var(--card-bg)",
@@ -387,33 +317,35 @@ const MagicBento: React.FC<BentoProps> = ({
     "--glow-radius": "200px",
   } as React.CSSProperties;
 
+  // Empty state
+  if (!items || items.length === 0) {
+    return (
+      <div className="text-center py-20 text-muted-foreground italic">
+        Chưa có bằng cấp nào.
+      </div>
+    );
+  }
+
   return (
     <>
       <style>{`
         .bento-section {
-          --glow-x: 50%;
-          --glow-y: 50%;
-          --glow-intensity: 0;
-          --glow-radius: 200px;
           --glow-color: ${glowColor};
           --border-color: ${isLight ? "#e8d5a3" : "#3a2e1a"};
-          --background-dark: ${isLight ? "#faf6ee" : "#0c0a05"};
           --card-bg: ${isLight ? "#fdf9f3" : "#12100a"};
-          --white: ${isLight ? "#1a0a2e" : "hsl(0, 0%, 100%)"};
+          --white: ${isLight ? "#1a0a2e" : "hsl(0,0%,100%)"};
           --text-secondary: ${isLight ? "#6b5a3e" : "rgba(255,255,255,0.65)"};
           --label-color: ${isLight ? "#a07840" : "rgba(196,162,98,0.9)"};
           --image-bg: ${isLight ? "#f0e8d4" : "#1a1408"};
-          --image-icon: ${isLight ? "#c4a262" : "#6b4e1a"};
-          --gold-primary: rgba(196, 162, 98, 1);
-          --gold-glow: rgba(196, 162, 98, 0.15);
-          --gold-border: rgba(196, 162, 98, 0.6);
+          --gold-primary: rgba(196,162,98,1);
+          --gold-glow: rgba(196,162,98,0.15);
+          --gold-border: rgba(196,162,98,0.6);
         }
 
-        /* ── Grid layout ── */
+        /* ── Grid layout — desktop: 6 cột, pattern lặp ── */
         .card-responsive {
           grid-template-columns: 1fr;
-          width: 90%;
-          margin: 0 auto;
+          width: 100%;
           padding: 0.5rem;
         }
         @media (min-width: 600px) {
@@ -421,34 +353,21 @@ const MagicBento: React.FC<BentoProps> = ({
         }
         @media (min-width: 1024px) {
           .card-responsive { grid-template-columns: repeat(6, 1fr); }
-          .card-responsive .card:nth-child(1) { grid-column: 1 / 4; }
-          .card-responsive .card:nth-child(2) { grid-column: 4 / 7; }
-          .card-responsive .card:nth-child(3) { grid-column: 1 / 3; }
-          .card-responsive .card:nth-child(4) { grid-column: 3 / 5; }
-          .card-responsive .card:nth-child(5) { grid-column: 5 / 7; }
         }
         @media (max-width: 599px) {
-          .card-responsive { grid-template-columns: 1fr; width: 90%; margin: 0 auto; padding: 0.5rem; }
-          .card-responsive .card { width: 100%; min-height: 220px; }
+          .card-responsive { grid-template-columns: 1fr; }
+          .card-responsive .card { min-height: 220px; }
+        }
+        /* Ở tablet (600-1023): reset grid-column về auto để tự flow 2 cột */
+        @media (min-width: 600px) and (max-width: 1023px) {
+          .card-responsive .card { grid-column: auto !important; }
         }
 
-        /* ── Card hover – CSS only, zero JS ── */
-        .card {
-          cursor: pointer;
-          transition: box-shadow 0.25s ease;
-        }
-        .card:hover {
-          box-shadow: 0 4px 16px rgba(196, 162, 98, 0.12);
-        }
-
-        /* ── Image zoom – CSS only ── */
-        .cert-img {
-          transition: transform 0.4s ease;
-          will-change: transform;
-        }
+        .card { cursor: pointer; transition: box-shadow 0.25s ease; }
+        .card:hover { box-shadow: 0 4px 16px rgba(196,162,98,0.12); }
+        .cert-img { transition: transform 0.4s ease; will-change: transform; }
         .cert-img:hover { transform: scale(1.06); }
 
-        /* ── Border glow (spotlight CSS-variable driven) ── */
         .card--border-glow::after {
           content: '';
           position: absolute;
@@ -461,39 +380,19 @@ const MagicBento: React.FC<BentoProps> = ({
             transparent 60%
           );
           border-radius: inherit;
-          -webkit-mask: linear-gradient(#fff 0 0) content-box,
-                        linear-gradient(#fff 0 0);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
-          mask: linear-gradient(#fff 0 0) content-box,
-                linear-gradient(#fff 0 0);
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           mask-composite: exclude;
           pointer-events: none;
           z-index: 1;
         }
         .card--border-glow:hover {
-          box-shadow: 0 4px 20px rgba(100, 80, 30, 0.25),
-                      0 0 24px rgba(${glowColor}, 0.15);
+          box-shadow: 0 4px 20px rgba(100,80,30,0.25), 0 0 24px rgba(${glowColor},0.15);
         }
 
-        /* ── Text clamp ── */
-        .text-clamp-1 {
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 1;
-          line-clamp: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .text-clamp-2 {
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 2;
-          line-clamp: 2;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        /* ── Modal ── */
+        .text-clamp-1 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
+        .text-clamp-2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
         .modal-overlay { cursor: pointer; }
         .modal-content { cursor: default; }
       `}</style>
@@ -508,14 +407,26 @@ const MagicBento: React.FC<BentoProps> = ({
         />
       )}
 
-      <BentoCardGrid gridRef={gridRef} bgColor="transparent">
+      <div
+        className="bento-section grid gap-2 p-3 w-full max-w-full select-none relative"
+        style={{
+          fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.5rem)",
+          borderRadius: "16px",
+        }}
+        ref={gridRef}
+      >
         <div className="card-responsive grid gap-2">
-          {cardData.map((card, index) => (
+          {items.map((card, index) => (
             <div
-              key={index}
+              key={card._id}
               className={baseClassName(enableBorderGlow)}
-              style={cardStyle}
-              onClick={() => handleCardClick(card.image)}
+              style={{
+                ...cardStyle,
+                // ← inline style chỉ áp dụng ở desktop (>= 1024px)
+                // CSS media query bên trên sẽ override thành unset ở mobile
+                gridColumn: getSmartGridColumn(index, items.length),
+              }}
+              onClick={() => card.image && setModalImage(card.image)}
             >
               <CertCardContent
                 card={card}
@@ -525,8 +436,9 @@ const MagicBento: React.FC<BentoProps> = ({
             </div>
           ))}
         </div>
-      </BentoCardGrid>
+      </div>
 
+      {/* Modal */}
       {modalImage && (
         <div
           className="modal-overlay"
@@ -581,7 +493,6 @@ const MagicBento: React.FC<BentoProps> = ({
                 backgroundColor: "rgba(0,0,0,0.6)",
                 color: "white",
                 fontSize: "18px",
-                lineHeight: 1,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
