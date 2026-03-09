@@ -1,21 +1,50 @@
 "use client";
 
 import { motion, useInView } from "motion/react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
-const languages = [
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface SkillItem {
+  label: string;
+  value: number;
+  code: string;
+}
+
+interface SkillBarProps extends SkillItem {
+  index: number;
+  accent: string;
+}
+
+interface CountUpProps {
+  value: number;
+  inView: boolean;
+  delay: number;
+}
+
+interface SkillGroupProps {
+  title: string;
+  subtitle: string;
+  items: SkillItem[];
+  accent: string;
+  index: number;
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const languages: SkillItem[] = [
   { label: "Vietnamese", value: 98, code: "VI" },
   { label: "English", value: 90, code: "EN" },
   { label: "French", value: 75, code: "FR" },
 ];
 
-const skills = [
+const skills: SkillItem[] = [
   { label: "Concept Design", value: 92, code: "01" },
   { label: "Technical Drawings", value: 85, code: "02" },
   { label: "Coordination & Execution", value: 88, code: "03" },
 ];
 
-function SkillBar({ label, value, code, index, accent }) {
+function SkillBar({ label, value, code, index, accent }: SkillBarProps) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
@@ -94,15 +123,19 @@ function SkillBar({ label, value, code, index, accent }) {
   );
 }
 
-function CountUp({ value, inView, delay }) {
-  const [display, setDisplay] = useCountAnimation(value, inView, delay);
+function CountUp({ value, inView, delay }: CountUpProps) {
+  const [display] = useCountAnimation(value, inView, delay);
   return <>{display}</>;
 }
 
-function useCountAnimation(target, inView, delay) {
-  const [count, setCount] = require("react").useState(0);
+function useCountAnimation(
+  target: number,
+  inView: boolean,
+  delay: number,
+): [number] {
+  const [count, setCount] = useState<number>(0);
 
-  require("react").useEffect(() => {
+  useEffect(() => {
     if (!inView) return;
     const timeout = setTimeout(
       () => {
@@ -126,10 +159,16 @@ function useCountAnimation(target, inView, delay) {
     return () => clearTimeout(timeout);
   }, [inView]);
 
-  return [count, setCount];
+  return [count];
 }
 
-function SkillGroup({ title, subtitle, items, accent, index: groupIndex }) {
+function SkillGroup({
+  title,
+  subtitle,
+  items,
+  accent,
+  index: groupIndex,
+}: SkillGroupProps) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
