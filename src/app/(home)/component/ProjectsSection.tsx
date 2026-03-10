@@ -160,7 +160,7 @@ export default function ProjectsSection() {
                       <DockItem
                         key={sw.name}
                         onClick={() => toggleSoftware(sw.name)}
-                        className="flex flex-col items-center relative cursor-pointer"
+                        className="flex flex-col items-center relative cursor-pointer dark:bg-white"
                       >
                         <DockIcon>
                           <Image
