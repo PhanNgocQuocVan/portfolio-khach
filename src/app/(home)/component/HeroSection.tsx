@@ -1,5 +1,6 @@
 "use client";
 import ColorBends from "@/components/ColorBends";
+import Grainient from "@/components/Grainient";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
@@ -17,40 +18,68 @@ export default function HeroSection() {
       className="relative h-screen w-full flex items-center justify-center overflow-hidden"
     >
       <div className="bg-black w-full h-full absolute inset-0">
-        {/* {isInView ? <ColorBends /> : <div className="w-full h-full bg-black" />} */}
-        <Image
-          src="/images/5685391_58472.jpg"
-          alt="Hero background"
-          fill
-          className="object-cover"
-        />
+        {isInView ? (
+          <Grainient
+            color1="#cfcfc9"
+            color2="#807e8b"
+            color3="#dcdbd0"
+            timeSpeed={1.6}
+            colorBalance={0.09}
+            warpStrength={1.2}
+            warpFrequency={5}
+            warpSpeed={2}
+            warpAmplitude={50}
+            blendAngle={0}
+            blendSoftness={0.05}
+            rotationAmount={500}
+            noiseScale={1.5}
+            grainAmount={0}
+            grainScale={2}
+            grainAnimated={false}
+            contrast={1.5}
+            gamma={1}
+            saturation={1}
+            centerX={0}
+            centerY={0}
+            zoom={0.9}
+          />
+        ) : (
+          <div className="w-full h-full bg-white" />
+        )}
       </div>
 
       {/* 2. Nội dung Hero Section */}
       <div className="absolute z-[51] inset-0 px-6 pointer-events-none contain-content top-20">
         <div className="flex items-center justify-between w-full relative z-[51]">
           <div>
-            <p className="text-white text-lg font-semibold tracking-tight">
-              Annie Doan
+            <p className="text-[#1a1a1a] text-lg font-semibold tracking-tight">
+              Thi Tu Anh (Annie) Doan
             </p>
-            <p className="text-gray-400 text-sm font-normal tracking-wide">
-              Space x Narrative x Emotion
+            <p className="text-[#555] text-sm font-normal tracking-wide">
+              Retail & Scenography Designer
             </p>
           </div>
           <div className="pointer-events-auto flex items-center gap-6">
             <a
               href="#"
-              className="text-white hover:underline transition-colors text-sm font-medium"
+              className="text-[#1a1a1a] hover:underline transition-colors text-sm font-medium"
             >
               LinkedIn
             </a>
             <a
               href="#"
-              className="text-white hover:underline transition-colors text-sm font-medium"
+              className="text-[#1a1a1a] hover:underline transition-colors text-sm font-medium"
             >
-              Twitter/X
+              whatsapp
             </a>
-            <LiquidMetalButton label="Contact" />
+            <LiquidMetalButton
+              label="Contact"
+              onClick={() => {
+                document
+                  .getElementById("contact")
+                  ?.scrollIntoView({ behavior: "smooth" });
+              }}
+            />
           </div>
         </div>
 
@@ -85,58 +114,71 @@ export default function HeroSection() {
                 </svg>
               </button>
 
-              <p className="text-gray-400 text-sm max-w-xl">
-                Annie is an interior architect & spatial storyteller, crafting
-                immersive environments that balance refined aesthetics with the
-                quiet power of functional design.
+              <p className="text-[#555] text-sm max-w-xl">
+                I design retail and experiential spaces where brand identity
+                becomes physical. From concept to completion, I move between
+                vision and execution.
               </p>
             </div>
 
             {/* Right: stats / icons */}
             <div className="flex items-center gap-10 text-right">
               <div className="flex items-center gap-4">
-                <div className="text-2xl font-semibold text-white">10+</div>
-                <div className="text-xs text-gray-400">
+                <div className="text-3xl font-semibold text-[#1a1a1a]">2+</div>
+                <div className="text-xs text-[#555]">
                   Years of <br /> Experience
                 </div>
               </div>
 
               <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-gray-300">
-                    {/* globe icon */}
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-[#1a1a1a]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path
-                        d="M12 2a10 10 0 100 20 10 10 0 000-20z"
+                        d="M12 3L2 9l10 6 10-6-10-6z"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M6 12.5v5c0 0 2 2 6 2s6-2 6-2v-5"
                         stroke="currentColor"
                         strokeWidth="1.2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
+                      <path
+                        d="M22 9v5"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinecap="round"
+                      />
                     </svg>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    AI &<br />
-                    Web3
+                  <span className="text-xs text-[#555]">
+                    2 Master's Degrees
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border border-gray-600 flex items-center justify-center text-gray-300">
-                    {/* star / AR icon */}
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full border border-gray-400 flex items-center justify-center text-[#1a1a1a]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path
-                        d="M12 2v20M2 12h20"
+                        d="M8 10h8M8 14h5"
                         stroke="currentColor"
                         strokeWidth="1.2"
                         strokeLinecap="round"
+                      />
+                      <path
+                        d="M3 7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H7l-4 3V7z"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
                         strokeLinejoin="round"
                       />
                     </svg>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    AR/VR &<br />
-                    Digital+Physical
+                  <span className="text-xs text-[#555]">
+                    3 Fluent Languages
                   </span>
                 </div>
               </div>

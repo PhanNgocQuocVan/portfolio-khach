@@ -5,15 +5,15 @@ export default function HorizontalLine() {
     <div className="w-full pointer-events-auto py-2 bg-[#f3f3f3]">
       <Marquee reverse className="text-sm text-black font-medium">
         {[
-          "50+ Projects Completed",
+          "100+ Stores Worldwide",
           "✦",
-          "10 Years of Experience",
+          "Spatial Visualization & Rendering",
           "✦",
-          "100% Bespoke Designs",
+          "Concept to Execution",
           "✦",
-          "12 Awards Won",
+          "Brand & Experiential Spaces",
           "✦",
-          "Featured in ArchDaily",
+          "English-French-Vietnamese",
         ].map((txt, i) => (
           <span key={i} className="mx-4">
             {txt}

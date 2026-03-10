@@ -102,8 +102,6 @@ export default function ContactSection() {
   });
 
   const onSubmit = async (data: ContactFormValues) => {
-    console.log("vuive");
-
     setSubmitError(null);
 
     // Các biến template dùng chung

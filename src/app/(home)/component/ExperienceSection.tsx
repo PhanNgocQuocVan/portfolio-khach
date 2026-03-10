@@ -33,13 +33,6 @@ export default function ExperienceSection() {
       <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-center mb-12 font-palatino">
         Experience
       </h2>
-      <p className="text-lg max-w-5xl text-center mx-auto mt-4">
-        Over the years, I've had the opportunity to work across different
-        companies and industries — from early-stage startups to established tech
-        firms. Each role has shaped the way I think about building products,
-        writing clean code, and collaborating with teams. Here's a look at where
-        I've been.
-      </p>
 
       <div className="mx-auto px-3 lg:px-6 pt-10">
         {/* Loading skeleton */}

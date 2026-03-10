@@ -57,12 +57,16 @@ export default function About() {
           </BlurFade>
           <BlurFade delay={0.25 * 2} inView>
             <p className="text-center text-lg max-w-4xl mx-auto mb-8 ">
-              With extensive experience in international luxury retail interior
-              architecture, I specialize in optimizing brand spaces through a
-              sophisticated blend of aesthetic vision and technical feasibility.
-              From flagship boutiques for Gucci Beauty in Paris to high-end
-              projects in Vietnam, my mission is to translate brand identities
-              into tangible, immersive spatial experiences.
+              A retail interior architect with international experience, I
+              operate between spatial design, visualization, and execution.
+              Proficient in advanced 3D modeling and rendering, I also bring a
+              strong understanding of stakeholder collaboration within
+              multicultural and global environments.
+              <br />
+              Holding two master’s degrees in Interior Architecture, with
+              specializations in Global Design and Luxury Scenography, I have
+              developed a practice grounded in both narrative sensitivity and
+              technical precision.
             </p>
           </BlurFade>
         </div>
@@ -87,12 +91,9 @@ export default function About() {
         {/* second paragraph & button */}
         <BlurFade delay={0.25} inView>
           <p className="text-center text-lg max-w-4xl mx-auto mb-8">
-            I believe a successful retail space transcends mere aesthetics; it
-            is a synergy of flawless operational flow, strict adherence to
-            global brand guidelines, and precise project coordination. Each
-            project represents a seamless journey from initial concept to
-            turnkey delivery, ensuring absolute client satisfaction and an
-            elevated customer experience.
+            Over the past two years at Coty, for Gucci Beauty, I contributed to
+            international retail rollouts, gaining extensive exposure to
+            brand-driven environments and cross-market coordination.
           </p>
           <div className="flex justify-center">
             <Button
