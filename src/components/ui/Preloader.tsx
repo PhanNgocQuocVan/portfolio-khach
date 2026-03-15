@@ -34,7 +34,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
         {/* Chữ Annie Doan - Hiệu ứng mờ dần và giãn chữ */}
         <div className="flex items-center justify-center">
           <CharacterMorph
-            texts={["THI TU ANH (ANIME)", "INTERIOR ARCHITECT"]}
+            texts={["THI TU ANH DOAN", "INTERIOR ARCHITECT"]}
             interval={2000} // Khoảng cách giữa 2 lần chuyển chữ (1.5 giây mỗi chữ)
             charDuration={0.6} // Thời gian mỗi chữ cái bay lên (nhanh nhưng đủ mượt)
             staggerDelay={0.02}

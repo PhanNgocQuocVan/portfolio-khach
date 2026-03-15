@@ -165,7 +165,7 @@ function SkillGroup({
       }}
     >
       {/* Group header */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-foreground/35 mb-1.5">
           {subtitle}
         </p>
@@ -176,7 +176,7 @@ function SkillGroup({
         <div className="mt-3 h-px w-full bg-foreground/10" />
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5 md:space-y-6">
         {items.map((item, i) => (
           <SkillBar key={item.label} {...item} index={i} />
         ))}
@@ -192,10 +192,10 @@ export default function SkillsSection() {
   const titleInView = useInView(titleRef, { once: true });
 
   return (
-    <section className="py-24 px-6">
-      <div className="w-full max-w-5xl mx-auto">
+    <section className="py-10 md:py-20" id="skills">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
         {/* ── Header ── */}
-        <div ref={titleRef} className="text-center mb-20">
+        <div ref={titleRef} className="text-center mb-10 md:mb-20">
           <motion.p
             className="text-[11px] font-mono tracking-[0.35em] uppercase text-foreground/35 mb-4"
             initial={{ opacity: 0, y: 10 }}
@@ -206,7 +206,7 @@ export default function SkillsSection() {
           </motion.p>
 
           <motion.h2
-            className="text-5xl md:text-6xl font-bold text-foreground tracking-tight leading-none font-palatino"
+            className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-none font-palatino"
             style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
             initial={{ opacity: 0, y: 24 }}
             animate={titleInView ? { opacity: 1, y: 0 } : {}}
@@ -243,19 +243,27 @@ export default function SkillsSection() {
         </div>
 
         {/* ── Two columns ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
-          <SkillGroup
-            title="Languages"
-            subtitle="Communication"
-            items={languages}
-            index={0}
-          />
-          <SkillGroup
-            title="Professional Skills"
-            subtitle="Design & Architecture"
-            items={skills}
-            index={1}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-20">
+          <div className="pb-10 md:pb-0">
+            <SkillGroup
+              title="Languages"
+              subtitle="Communication"
+              items={languages}
+              index={0}
+            />
+          </div>
+
+          {/* Mobile divider between groups */}
+          <div className="block md:hidden h-px w-full bg-foreground/10 mb-10" />
+
+          <div>
+            <SkillGroup
+              title="Professional Skills"
+              subtitle="Design & Architecture"
+              items={skills}
+              index={1}
+            />
+          </div>
         </div>
       </div>
     </section>

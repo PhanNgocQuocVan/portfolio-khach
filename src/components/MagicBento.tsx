@@ -19,7 +19,7 @@ export interface BentoProps {
 
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = "196, 162, 98";
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_BREAKPOINT = 1024;
 
 // ─── Tính grid-column cho từng card theo pattern lặp ──────────────────────
 // Pattern chuẩn mỗi 5 card (1 chu kỳ):
@@ -354,11 +354,12 @@ const MagicBento: React.FC<BentoProps> = ({
         @media (min-width: 1024px) {
           .card-responsive { grid-template-columns: repeat(6, 1fr); }
         }
+        /* Ở mobile (< 600px): 1 cột, card full width */
         @media (max-width: 599px) {
-          .card-responsive { grid-template-columns: 1fr; }
-          .card-responsive .card { min-height: 220px; }
+          .card-responsive { grid-template-columns: 1fr !important; }
+          .card-responsive .card { grid-column: 1 / -1 !important; min-height: 200px; }
         }
-        /* Ở tablet (600-1023): reset grid-column về auto để tự flow 2 cột */
+        /* Ở tablet (600-1023): 2 cột, reset grid-column */
         @media (min-width: 600px) and (max-width: 1023px) {
           .card-responsive .card { grid-column: auto !important; }
         }
@@ -422,9 +423,10 @@ const MagicBento: React.FC<BentoProps> = ({
               className={baseClassName(enableBorderGlow)}
               style={{
                 ...cardStyle,
-                // ← inline style chỉ áp dụng ở desktop (>= 1024px)
-                // CSS media query bên trên sẽ override thành unset ở mobile
-                gridColumn: getSmartGridColumn(index, items.length),
+                // Chỉ áp dụng gridColumn ở desktop, mobile/tablet dùng CSS class
+                ...(isMobile
+                  ? {}
+                  : { gridColumn: getSmartGridColumn(index, items.length) }),
               }}
               onClick={() => card.image && setModalImage(card.image)}
             >

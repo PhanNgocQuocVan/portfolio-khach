@@ -158,32 +158,32 @@ export default function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative min-h-screen w-full flex flex-col items-center justify-center py-20
+      className="relative min-h-screen w-full flex flex-col items-center justify-center py-12 md:py-20
         bg-[#1e2d25]
         transition-colors duration-300"
     >
-      <div className="max-w-2xl mx-auto px-6 mb-16 text-white">
-        <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-center mb-12 font-palatino">
+      <div className="max-w-2xl mx-auto px-4 md:px-6 mb-10 md:mb-16 text-white">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-center mb-6 md:mb-12 font-palatino">
           Get in Touch
         </h2>
-        <p className="text-center max-w-2xl mx-auto">
+        <p className="text-center text-sm md:text-base max-w-2xl mx-auto">
           Whether you have a specific project in mind or just want to say hi, my
           inbox is always open. Let's create something timeless
         </p>
       </div>
-      <div className="max-w-screen-xl mx-auto px-6 w-full">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-6 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="rounded-2xl overflow-hidden flex shadow-xl dark:shadow-black/50
+          className="rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-xl dark:shadow-black/50
             bg-white dark:bg-gray-900
             transition-colors duration-300"
           style={{ minHeight: 520 }}
         >
           {/* ── Left: Form ── */}
-          <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col bg-[#c4a262]">
+          <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col bg-[#c4a262]">
             {/* Heading */}
             <h2 className="text-3xl font-semibold mb-2 text-gray-900 dark:text-black">
               Let's work together

@@ -2,11 +2,13 @@
 import { motion } from "framer-motion";
 import SegmentedButton from "./segmented-button";
 import { AnimatedThemeToggler } from "./animated-theme-toggler";
-import { useLoadingStore } from "@/store/useLoadingStore";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import StaggeredMenu from "@/components/StaggeredMenu";
 
 const navItems = [
   { id: "home", label: "Home" },
   { id: "about", label: "About" },
+  { id: "skills", label: "Skills" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "Education&Awards", label: "Education" },
@@ -14,6 +16,8 @@ const navItems = [
 ];
 
 export const Navbar = () => {
+  const isMobile = useIsMobile();
+
   const handleNavigation = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -23,6 +27,22 @@ export const Navbar = () => {
       });
     }
   };
+
+  if (isMobile) {
+    return (
+      <StaggeredMenu
+        items={navItems.map((item) => ({
+          label: item.label,
+          ariaLabel: item.label,
+          link: `#${item.id}`,
+        }))}
+        isFixed={true}
+        displaySocials={false}
+        menuButtonColor="gray"
+        openMenuButtonColor="black"
+      />
+    );
+  }
 
   return (
     <motion.nav

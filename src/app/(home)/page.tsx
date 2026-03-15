@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Preloader from "@/components/ui/Preloader";
 import { Navbar } from "@/components/ui/navbar";
@@ -14,17 +14,23 @@ import HorizontalLine from "@/components/HorizontalLine";
 import { useLoadingStore } from "@/store/useLoadingStore";
 import Footer from "@/components/footer";
 import Skillssection from "./component/Skillssection";
+import { useIsMobile } from "@/hooks/useIsMobile";
+
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";
 // import Experience from "./component/Experience";
 
 export default function HomePage() {
   const { hasLoaded, setHasLoaded } = useLoadingStore();
+  const isMobile = useIsMobile();
+
+  // If on mobile, basically we don't need Preloader, we can pretend it loaded immediately or skip it
+  const showPreloader = !hasLoaded && !isMobile;
 
   return (
     <main className="relative min-h-screen w-full">
       <AnimatePresence mode="wait">
-        {!hasLoaded ? (
+        {showPreloader ? (
           <Preloader key="loader" onComplete={() => setHasLoaded(true)} />
         ) : (
           <motion.div

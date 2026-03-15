@@ -46,23 +46,24 @@ export default function About() {
     }
   };
   return (
-    <section id="about" className="relative w-full py-20 ">
-      <div className="max-w-screen-xl mx-auto px-6">
+    <section id="about" className="relative w-full py-12 md:py-20">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-6">
         {/* heading & intro */}
         <div>
           <BlurFade delay={0.25} inView>
-            <SparklesText className="text-4xl md:text-7xl mb-6 text-center font-palatino">
+            <SparklesText className="text-3xl md:text-5xl lg:text-7xl mb-4 md:mb-6 text-center font-palatino">
               About me
             </SparklesText>
           </BlurFade>
           <BlurFade delay={0.25 * 2} inView>
-            <p className="text-center text-lg max-w-4xl mx-auto mb-8 ">
+            <p className="text-center text-base md:text-lg max-w-4xl mx-auto mb-6 md:mb-8 text-[#555] dark:text-gray-300">
               A retail interior architect with international experience, I
               operate between spatial design, visualization, and execution.
               Proficient in advanced 3D modeling and rendering, I also bring a
               strong understanding of stakeholder collaboration within
               multicultural and global environments.
               <br />
+              <br className="md:hidden" />
               Holding two master’s degrees in Interior Architecture, with
               specializations in Global Design and Luxury Scenography, I have
               developed a practice grounded in both narrative sensitivity and
@@ -77,10 +78,10 @@ export default function About() {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="flex justify-center mb-12"
+          className="flex justify-center mb-8 md:mb-12"
         >
           <HeroVideoDialog
-            className="block"
+            className="block w-full max-w-4xl"
             animationStyle="from-center"
             videoSrc="https://www.youtube.com/embed/AmO9d88Ovfs"
             thumbnailSrc="https://wallpapercave.com/wp/wp6514888.jpg"
@@ -90,18 +91,18 @@ export default function About() {
 
         {/* second paragraph & button */}
         <BlurFade delay={0.25} inView>
-          <p className="text-center text-lg max-w-4xl mx-auto mb-8">
+          <p className="text-center text-base md:text-lg max-w-4xl mx-auto mb-6 md:mb-8 text-[#555] dark:text-gray-300">
             Over the past two years at Coty, for Gucci Beauty, I contributed to
             international retail rollouts, gaining extensive exposure to
             brand-driven environments and cross-market coordination.
           </p>
           <div className="flex justify-center">
             <Button
-              className=" font-semibold py-3 px-6 rounded-full transition cursor-pointer"
+              className="font-semibold py-2 px-5 md:py-3 md:px-6 text-sm md:text-base rounded-full transition cursor-pointer"
               onClick={handleDownload}
               disabled={loading}
             >
-              <Download />
+              <Download className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" />
               Download CV
             </Button>
           </div>

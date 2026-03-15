@@ -28,13 +28,13 @@ export default function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="relative max-w-screen-xl mx-auto px-6 w-full"
+      className="relative max-w-screen-xl mx-auto px-4 md:px-6 w-full py-12 md:py-20"
     >
-      <h2 className="text-4xl md:text-7xl font-bold tracking-tight text-center mb-12 font-palatino">
+      <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-center mb-8 md:mb-12 font-palatino">
         Experience
       </h2>
 
-      <div className="mx-auto px-3 lg:px-6 pt-10">
+      <div className="mx-auto px-0 md:px-3 lg:px-6 pt-10">
         {/* Loading skeleton */}
         {loading ? (
           <div className="space-y-10">
@@ -103,13 +103,13 @@ export default function ExperienceSection() {
                           <img
                             src={exp.image}
                             alt={exp.title}
-                            className="w-full h-84 object-cover"
+                            className="w-full h-48 md:h-84 object-cover"
                           />
                         </div>
                       )}
 
                       {exp.description && (
-                        <div className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance">
+                        <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance">
                           <p>{exp.description}</p>
                         </div>
                       )}
