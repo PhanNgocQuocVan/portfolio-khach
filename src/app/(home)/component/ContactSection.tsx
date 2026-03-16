@@ -20,25 +20,25 @@ const slides = [
     image:
       "https://truongthang.vn/wp-content/uploads/2025/04/goi-y-noi-that-phong-khach-rong-cho-nha-them-sang-va-dep-3-1.jpg",
     quote:
-      "Annie has a rare talent for turning a simple brief into a spatial narrative. Her attention to detail and ability to evoke emotion through interior design is truly exceptional.",
-    author: "Ellie Simpson",
-    role: "Head of Design, Sisyphus Labs",
+      "Thi Tu Anh stands out for her strong attention to detail and her ability to manage multiple tasks with precision and reliability. She communicates clearly with different teams and adapts quickly when working with international markets.Responsible and proactive, she approaches every project with a strong willingness to learn and continuously improve.",
+    author: "Anna D",
+    role: "Senior Merchandising Project Manager, Coty – Gucci Beauty",
   },
   {
     image:
       "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80",
     quote:
-      "The attention to detail and quality of work exceeded all expectations. Our project was delivered on time and the results speak for themselves.",
-    author: "James Carter",
-    role: "CEO, Momentum Studio",
+      "Throughout her internship, Thi Tu Anh showed great creativity and technical ability. She produced precise execution drawings and high-quality 3D models while maintaining a proactive and reliable attitude.She proved to be a dependable designer, capable of contributing effectively to real projects and collaborating smoothly within the team.",
+    author: "Axelle D",
+    role: "Interior Architect & Project Manager, Morning",
   },
   {
     image:
       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
     quote:
-      "A truly transformative experience. The team understood our vision perfectly and brought it to life in ways we couldn't have imagined.",
-    author: "Sarah Nguyen",
-    role: "Product Lead, Arclight Co.",
+      "Thi Tu Anh quickly demonstrated strong professional skills and a proactive mindset. She integrates rapidly into a team, communicates effectively, and approaches each project with creativity and responsibility.Her ability to understand project requirements and translate them into clear design solutions made her a valuable contributor during her time with us.",
+    author: "Thu Hang B",
+    role: "CEO, Le Vin Decor",
   },
 ];
 
