@@ -5,10 +5,14 @@ import { motion } from "motion/react";
 export const TextHoverEffect = ({
   text,
   duration,
+  forceColor,
 }: {
   text: string;
   duration?: number;
   automatic?: boolean;
+  /** Force a specific stroke color, bypassing theme detection.
+   *  Pass "white" for always-dark containers (e.g. footer). */
+  forceColor?: "white" | "black";
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const measureRef = useRef<SVGTextElement>(null);
@@ -30,13 +34,22 @@ export const TextHoverEffect = ({
     });
     return () => observer.disconnect();
   }, []);
+
+  // Resolved color: forceColor prop wins, then theme
+  const isLight =
+    forceColor === "white" ? true : forceColor === "black" ? false : isDark;
+
+  const baseColor = isLight ? "rgba(255,255,255,0.20)" : "rgba(0,0,0,0.20)";
+  const strokeColor = isLight ? "rgba(255,255,255,0.30)" : "rgba(0,0,0,0.30)";
+  const shimmer1 = isLight ? "#ffffff" : "#000000";
+  const shimmer2 = isLight ? "#d4d4d4" : "#3a3a3a";
+
   const [maskPosition, setMaskPosition] = useState({ cx: "50%", cy: "50%" });
   const [viewBox, setViewBox] = useState("0 0 1000 160");
 
   const FONT_SIZE = 120;
   const PAD = 8;
 
-  // Measure rendered text and fit viewBox tightly around it
   useEffect(() => {
     const measure = () => {
       if (!measureRef.current) return;
@@ -48,14 +61,11 @@ export const TextHoverEffect = ({
         );
       } catch (_) {}
     };
-
-    // Run immediately + after fonts likely loaded
     measure();
     const id = setTimeout(measure, 200);
     return () => clearTimeout(id);
   }, [text]);
 
-  // Update spotlight mask position
   useEffect(() => {
     if (!svgRef.current) return;
     const svgRect = svgRef.current.getBoundingClientRect();
@@ -90,7 +100,7 @@ export const TextHoverEffect = ({
       className="select-none block w-full"
     >
       <defs>
-        {/* Gold gradient — horizontal sweep across full text */}
+        {/* Shimmer gradient — always matches resolved color */}
         <linearGradient
           id="textGradient"
           gradientUnits="userSpaceOnUse"
@@ -101,16 +111,16 @@ export const TextHoverEffect = ({
         >
           {hovered && (
             <>
-              <stop offset="0%" stopColor="#c4a262" />
-              <stop offset="20%" stopColor="#f0dca0" />
-              <stop offset="45%" stopColor="#c4a262" />
-              <stop offset="70%" stopColor="#e8d5a3" />
-              <stop offset="100%" stopColor="#a07840" />
+              <stop offset="0%" stopColor={shimmer1} stopOpacity="0.5" />
+              <stop offset="25%" stopColor={shimmer1} stopOpacity="1" />
+              <stop offset="50%" stopColor={shimmer2} stopOpacity="0.9" />
+              <stop offset="75%" stopColor={shimmer1} stopOpacity="1" />
+              <stop offset="100%" stopColor={shimmer1} stopOpacity="0.5" />
             </>
           )}
         </linearGradient>
 
-        {/* Radial reveal mask following cursor */}
+        {/* Radial reveal mask */}
         <motion.radialGradient
           id="revealMask"
           gradientUnits="userSpaceOnUse"
@@ -124,7 +134,6 @@ export const TextHoverEffect = ({
         </motion.radialGradient>
 
         <mask id="textMask">
-          {/* Oversized rect so mask covers entire viewBox regardless of pan */}
           <rect
             x="-100%"
             y="-100%"
@@ -135,7 +144,7 @@ export const TextHoverEffect = ({
         </mask>
       </defs>
 
-      {/* ── Hidden measuring node (never visible) ── */}
+      {/* Hidden measuring node */}
       <text
         ref={measureRef}
         {...sharedTextProps}
@@ -147,26 +156,21 @@ export const TextHoverEffect = ({
         {text}
       </text>
 
-      {/* ── Layer 1: Base outline (always present, fades in on hover) ── */}
+      {/* Layer 1: Base outline */}
       <text
         {...sharedTextProps}
         fill="transparent"
-        stroke="currentColor"
-        className="text-neutral-400"
-        style={{
-          opacity: hovered ? 0.6 : 0.25,
-          transition: "opacity 0.4s ease",
-        }}
+        stroke={baseColor}
+        style={{ transition: "opacity 0.4s ease" }}
       >
         {text}
       </text>
 
-      {/* ── Layer 2: Draw-on animation stroke ── */}
+      {/* Layer 2: Draw-on animation */}
       <motion.text
         {...sharedTextProps}
         fill="transparent"
-        stroke="currentColor"
-        className="text-neutral-400"
+        stroke={strokeColor}
         initial={{ strokeDashoffset: 3000, strokeDasharray: 3000 }}
         animate={{ strokeDashoffset: 0, strokeDasharray: 3000 }}
         transition={{ duration: 4, ease: "easeInOut" }}
@@ -174,12 +178,12 @@ export const TextHoverEffect = ({
         {text}
       </motion.text>
 
-      {/* ── Layer 3: Gold gradient revealed under cursor ── */}
+      {/* Layer 3: Shimmer revealed under cursor */}
       <text
         {...sharedTextProps}
         fill="transparent"
         stroke="url(#textGradient)"
-        strokeWidth={1.5}
+        strokeWidth={1.8}
         mask="url(#textMask)"
       >
         {text}

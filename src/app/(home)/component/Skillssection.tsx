@@ -9,6 +9,8 @@ interface SkillItem {
   label: string;
   value: number;
   code: string;
+  level?: string;
+  hideValue?: boolean;
 }
 
 interface SkillBarProps extends SkillItem {
@@ -31,20 +33,49 @@ interface SkillGroupProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const languages: SkillItem[] = [
-  { label: "Vietnamese", value: 98, code: "VI" },
-  { label: "English", value: 90, code: "EN" },
-  { label: "French", value: 75, code: "FR" },
+  { label: "English", value: 85, level: "C1", code: "EN" },
+  { label: "French", value: 93, level: "C2", code: "FR" },
+  { label: "Vietnamese", value: 98, level: "Native", code: "VI" },
+  { label: "Italian", value: 40, level: "C2", code: "IT" },
 ];
 
 const skills: SkillItem[] = [
-  { label: "Concept Design", value: 92, code: "01" },
-  { label: "Technical Drawings", value: 85, code: "02" },
-  { label: "Coordination & Execution", value: 88, code: "03" },
+  {
+    label: "Site Survey & Client Brief",
+    value: 100,
+    hideValue: true,
+    code: "01",
+  },
+  {
+    label: "Concept Design & Space Planning",
+    value: 100,
+    hideValue: true,
+    code: "02",
+  },
+  {
+    label: "3D Visualization & Technical Drawings",
+    value: 100,
+    hideValue: true,
+    code: "03",
+  },
+  {
+    label: "Coordination & Execution",
+    value: 100,
+    hideValue: true,
+    code: "04",
+  },
 ];
 
 // ─── SkillBar ─────────────────────────────────────────────────────────────────
 
-function SkillBar({ label, value, code, index }: SkillBarProps) {
+function SkillBar({
+  label,
+  value,
+  code,
+  level,
+  hideValue,
+  index,
+}: SkillBarProps) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
 
@@ -74,13 +105,36 @@ function SkillBar({ label, value, code, index }: SkillBarProps) {
           </span>
         </div>
         <motion.span
-          className="text-[13px] font-mono font-semibold text-foreground/60"
+          className="text-[13px] font-mono font-semibold text-foreground/60 flex items-center"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: index * 0.1 + 0.35, duration: 0.4 }}
         >
-          <CountUp value={value} inView={inView} delay={index * 0.1} />
-          <span className="text-foreground/30">%</span>
+          {hideValue ? (
+            <svg
+              className="w-4 h-4 text-foreground/60 ml-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          ) : (
+            <>
+              <CountUp value={value} inView={inView} delay={index * 0.1} />
+              <span className="text-foreground/30">%</span>
+            </>
+          )}
+          {level && (
+            <span className="text-foreground/50 ml-1.5 uppercase font-medium tracking-wider">
+              - {level}
+            </span>
+          )}
         </motion.span>
       </div>
 

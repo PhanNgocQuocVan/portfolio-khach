@@ -7,39 +7,40 @@ export default function Footer() {
     {
       id: 1,
       name: "Zalo",
-      url: "https://zalo.me/yourhandle",
+      url: "https://zalo.me/+33622089782",
       image: "images/zalo.png",
       color: "#0068FF",
     },
     {
       id: 2,
       name: "linkedin",
-      url: "https://linkedin.com/in/yourprofile",
+      url: "https://www.linkedin.com/in/thi-tu-anh-doan/",
       image: "images/linkind.png",
       color: "#0A66C2",
     },
     {
       id: 3,
       name: "Whatsapp",
-      url: "https://wa.me/yourphonenumber",
+      url: "https://wa.me/+33622089782",
       image: "images/whatsapp.png",
       color: "#25D366",
     },
   ];
+
   return (
-    <footer className="w-full bg-[#1e2d25] transition-colors duration-300">
+    <footer className="w-full bg-[#111111] transition-colors duration-300">
       {/* ── Top bar ── */}
-      <div className="mx-auto px-4 md:px-6 py-4 flex flex-row items-center justify-between border-b border-neutral-200/20 gap-2">
+      <div className="mx-auto px-4 md:px-6 py-4 flex flex-row items-center justify-between border-b border-white/10 gap-2">
         {/* Left: contact */}
         <div className="flex flex-col items-start text-left">
-          <span className="text-[10px] md:text-xs text-white/60 uppercase tracking-[0.12em]">
+          <span className="text-[10px] md:text-xs text-white/40 uppercase tracking-[0.12em]">
             Contact
           </span>
           <a
-            href="mailto:tuanh@example.com"
-            className="flex items-center gap-1 text-[12px] md:text-sm font-medium text-[#c4a262] hover:opacity-70 transition-opacity"
+            href="mailto:doantuanh.work@gmail.com"
+            className="flex items-center gap-1 text-[12px] md:text-sm font-medium text-white hover:text-white/60 transition-colors"
           >
-            tuanh@example.com
+            doantuanh.work@gmail.com
             <svg
               width="10"
               height="10"
@@ -61,8 +62,8 @@ export default function Footer() {
         <nav className="flex items-center gap-2 md:gap-4 md:pr-8">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="flex items-center gap-1">
-              <span className="w-0.5 h-3 md:h-4 bg-amber-400 rounded-full"></span>
-              <span className="text-[9px] md:text-xs font-semibold tracking-[0.2em] uppercase text-white/50">
+              <span className="w-0.5 h-3 md:h-4 bg-white/20 rounded-full" />
+              <span className="text-[9px] md:text-xs font-semibold tracking-[0.2em] uppercase text-white/40">
                 Media
               </span>
             </div>
@@ -74,14 +75,14 @@ export default function Footer() {
       </div>
 
       {/* ── Big name ── */}
-      <div className="w-full px-0 ">
-        <TextHoverEffect text="DOAN THI TU ANH" />
+      <div className="w-full px-0">
+        <TextHoverEffect text="DOAN THI TU ANH" forceColor="white" />
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="mx-auto px-4 md:px-6 py-3 md:py-4 flex flex-row items-center justify-between border-t border-neutral-200/20 gap-2">
+      <div className="mx-auto px-4 md:px-6 py-3 md:py-4 flex flex-row items-center justify-between border-t border-white/10 gap-2">
         {/* Left: copyright */}
-        <span className="text-[10px] md:text-xs text-white/50">
+        <span className="text-[10px] md:text-xs text-white/40">
           © {new Date().getFullYear()} Doan Thi Tu Anh.
         </span>
 
@@ -96,7 +97,7 @@ export default function Footer() {
             <a
               key={label}
               href={href}
-              className="flex items-center gap-1 text-[10px] md:text-xs text-white/60 hover:text-[#c4a262] transition-colors"
+              className="flex items-center gap-1 text-[10px] md:text-xs text-white/40 hover:text-white/80 transition-colors"
             >
               {label}
               <svg

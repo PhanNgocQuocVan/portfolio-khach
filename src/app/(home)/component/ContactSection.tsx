@@ -145,28 +145,25 @@ export default function ContactSection() {
   const inputClass = (hasError: boolean) =>
     [
       "w-full px-3 py-2 text-sm rounded-md border focus:outline-none focus:ring-2 transition-all",
-      // light
-      "bg-white/20 text-black placeholder:text-black/70 backdrop-blur-sm",
-      // dark
-      "",
+      // dark panel: translucent white bg, white text
+      "bg-white/10 text-background placeholder:text-background/40 backdrop-blur-sm",
       // border & ring
       hasError
-        ? "border-red-400 focus:ring-red-300 dark:border-red-500 dark:focus:ring-red-500/40"
-        : "border-white/40 focus:ring-white focus:border-transparent",
+        ? "border-red-400 focus:ring-red-400/50"
+        : "border-white/20 focus:ring-white/50 focus:border-white/40",
     ].join(" ");
 
   return (
     <section
       id="contact"
       className="relative min-h-screen w-full flex flex-col items-center justify-center py-12 md:py-20
-        bg-[#1e2d25]
         transition-colors duration-300"
     >
-      <div className="max-w-2xl mx-auto px-4 md:px-6 mb-10 md:mb-16 text-white">
-        <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-center mb-6 md:mb-12 font-palatino">
+      <div className="max-w-2xl mx-auto px-4 md:px-6 mb-10 md:mb-16">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-center mb-6 md:mb-12 font-palatino text-foreground">
           Get in Touch
         </h2>
-        <p className="text-center text-sm md:text-base max-w-2xl mx-auto">
+        <p className="text-center text-sm md:text-base max-w-2xl mx-auto text-foreground/60">
           Whether you have a specific project in mind or just want to say hi, my
           inbox is always open. Let's create something timeless
         </p>
@@ -178,17 +175,17 @@ export default function ContactSection() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           className="rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-xl dark:shadow-black/50
-            bg-white dark:bg-gray-900
+            border border-foreground/10
             transition-colors duration-300"
           style={{ minHeight: 520 }}
         >
           {/* ── Left: Form ── */}
-          <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col bg-[#c4a262]">
+          <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col bg-foreground">
             {/* Heading */}
-            <h2 className="text-3xl font-semibold mb-2 text-gray-900 dark:text-black">
+            <h2 className="text-3xl font-semibold mb-2 text-background">
               Let's work together
             </h2>
-            <p className="text-sm mb-6 text-black/90">
+            <p className="text-sm mb-6 text-background/60">
               Have a project in mind? Tell me more about it and let's start a
               conversation.
             </p>
@@ -201,15 +198,15 @@ export default function ContactSection() {
                 className="flex-1 flex flex-col items-center justify-center text-center gap-3"
               >
                 <CheckCircle2 size={48} className="text-green-500" />
-                <h3 className="text-lg font-semibold text-gray-900 ">
+                <h3 className="text-lg font-semibold text-background">
                   Message sent!
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-background/60">
                   Thanks for reaching out. We'll be in touch within 24 hours.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
-                  className="mt-2 text-sm underline text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-black"
+                  className="mt-2 text-sm underline text-background/70 hover:text-background transition-colors"
                 >
                   Send another message
                 </button>
@@ -226,7 +223,7 @@ export default function ContactSection() {
                   <div>
                     <label
                       htmlFor="firstName"
-                      className="block text-sm font-medium mb-1 text-black"
+                      className="block text-sm font-medium mb-1 text-background/80"
                     >
                       First name
                     </label>
@@ -241,7 +238,7 @@ export default function ContactSection() {
                   <div>
                     <label
                       htmlFor="lastName"
-                      className="block text-sm font-medium mb-1 text-black"
+                      className="block text-sm font-medium mb-1 text-background/80"
                     >
                       Last name
                     </label>
@@ -259,7 +256,7 @@ export default function ContactSection() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium mb-1 text-black"
+                    className="block text-sm font-medium mb-1 text-background/80"
                   >
                     Email
                   </label>
@@ -277,7 +274,7 @@ export default function ContactSection() {
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium mb-1 text-black"
+                    className="block text-sm font-medium mb-1 text-background/80"
                   >
                     Phone number
                   </label>
@@ -298,7 +295,7 @@ export default function ContactSection() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-sm font-medium mb-1 text-black"
+                    className="block text-sm font-medium mb-1 text-background/80"
                   >
                     Message
                   </label>
@@ -326,7 +323,7 @@ export default function ContactSection() {
                   className="w-full py-2.5 px-4 text-sm font-medium rounded-md transition-colors
                     disabled:opacity-60 disabled:cursor-not-allowed
                     flex items-center justify-center gap-2
-                    bg-[#1e2d25] hover:bg-[#2d4a38] text-white"
+                    bg-background text-foreground hover:bg-background/90"
                 >
                   {isSubmitting ? (
                     <>

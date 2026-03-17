@@ -20,10 +20,10 @@ import {
   PROJECTS_LIST_QUERY,
 } from "@/sanity/schemaTypes/queries";
 import {
-  Lightbulb,
-  Ruler,
-  Box,
-  GitMerge,
+  Store,
+  Clapperboard,
+  UtensilsCrossed,
+  HardHat,
   ChevronDown,
   X,
   SlidersHorizontal,
@@ -111,10 +111,10 @@ const SOFTWARE_LIST = [
 ];
 
 const CATEGORY_LIST = [
-  { value: "concept-design", label: "Concept Design", icon: Lightbulb },
-  { value: "technical-drawings", label: "Technical Drawings", icon: Ruler },
-  { value: "3d-render", label: "3D & Render", icon: Box },
-  { value: "coordination", label: "Coordination & Execution", icon: GitMerge },
+  { value: "retail", label: "Retail", icon: Store },
+  { value: "set-design", label: "Set Design", icon: Clapperboard },
+  { value: "hospitality", label: "Hospitality", icon: UtensilsCrossed },
+  { value: "objects", label: "Objects", icon: HardHat },
 ];
 
 export default function ProjectsSection() {
@@ -236,47 +236,6 @@ export default function ProjectsSection() {
               >
                 <div className="pointer-events-auto">
                   <Dock>
-                    {/* Software items — bên trái separator */}
-                    {SOFTWARE_LIST.map((sw) => {
-                      const isSelected = selectedSoftware.includes(sw.name);
-                      return (
-                        <DockItem
-                          key={sw.name}
-                          onClick={() => toggleSoftware(sw.name)}
-                          className="flex flex-col items-center relative cursor-pointer dark:bg-white"
-                        >
-                          <DockIcon>
-                            <Image
-                              src={sw.icon}
-                              alt={sw.name}
-                              width={40}
-                              height={40}
-                              unoptimized
-                              className={`w-full h-full object-contain rounded-lg transition-all duration-200 ${
-                                !isSelected && selectedSoftware.length > 0
-                                  ? "opacity-40 grayscale"
-                                  : ""
-                              }`}
-                            />
-                          </DockIcon>
-                          <DockLabel>{sw.name}</DockLabel>
-                          <div className="absolute -bottom-1 flex justify-center w-full">
-                            <motion.span
-                              initial={false}
-                              animate={{
-                                scale: isSelected ? 1 : 0,
-                                opacity: isSelected ? 1 : 0,
-                              }}
-                              className="h-1 w-1 rounded-full bg-primary"
-                            />
-                          </div>
-                        </DockItem>
-                      );
-                    })}
-
-                    <DockSeparator />
-
-                    {/* Category items — bên phải separator */}
                     {CATEGORY_LIST.map((cat) => {
                       const isSelected = selectedCategories.includes(cat.value);
                       const Icon = cat.icon;
@@ -302,6 +261,43 @@ export default function ProjectsSection() {
                             </div>
                           </DockIcon>
                           <DockLabel>{cat.label}</DockLabel>
+                          <div className="absolute -bottom-1 flex justify-center w-full">
+                            <motion.span
+                              initial={false}
+                              animate={{
+                                scale: isSelected ? 1 : 0,
+                                opacity: isSelected ? 1 : 0,
+                              }}
+                              className="h-1 w-1 rounded-full bg-primary"
+                            />
+                          </div>
+                        </DockItem>
+                      );
+                    })}
+                    <DockSeparator />
+                    {SOFTWARE_LIST.map((sw) => {
+                      const isSelected = selectedSoftware.includes(sw.name);
+                      return (
+                        <DockItem
+                          key={sw.name}
+                          onClick={() => toggleSoftware(sw.name)}
+                          className="flex flex-col items-center relative cursor-pointer dark:bg-white"
+                        >
+                          <DockIcon>
+                            <Image
+                              src={sw.icon}
+                              alt={sw.name}
+                              width={40}
+                              height={40}
+                              unoptimized
+                              className={`w-full h-full object-contain rounded-lg transition-all duration-200 ${
+                                !isSelected && selectedSoftware.length > 0
+                                  ? "opacity-40 grayscale"
+                                  : ""
+                              }`}
+                            />
+                          </DockIcon>
+                          <DockLabel>{sw.name}</DockLabel>
                           <div className="absolute -bottom-1 flex justify-center w-full">
                             <motion.span
                               initial={false}

@@ -22,7 +22,6 @@ export const cvType = defineType({
         accept: ".pdf",
         storeOriginalFilename: true,
       },
-      // Dùng component tuỳ chỉnh để hiển thị nút tải lên đẹp hơn
       components: {
         input: CvUploadInput,
       },
@@ -35,6 +34,22 @@ export const cvType = defineType({
       type: "datetime",
       readOnly: true,
       description: "Thời gian cập nhật CV gần nhất",
+    }),
+
+    // ── ABOUT SECTION ────────────────────────────────────
+    defineField({
+      name: "videoUrl",
+      title: "Video URL (YouTube embed)",
+      type: "url",
+      description: "Dán link dạng: https://www.youtube.com/embed/VIDEO_ID",
+    }),
+
+    defineField({
+      name: "videoThumbnail",
+      title: "Video Thumbnail",
+      type: "image",
+      options: { hotspot: true },
+      description: "Ảnh preview hiển thị trước khi play video",
     }),
   ],
   preview: {

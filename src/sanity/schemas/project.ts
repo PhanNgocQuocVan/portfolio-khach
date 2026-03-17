@@ -14,10 +14,10 @@ const SOFTWARE_OPTIONS = [
 ];
 
 const CATEGORY_OPTIONS = [
-  { title: "Concept Design", value: "concept-design" },
-  { title: "Technical Drawings", value: "technical-drawings" },
-  { title: "3D & Render", value: "3d-render" },
-  { title: "Coordination & Execution", value: "coordination" },
+  { title: "Retail", value: "retail" },
+  { title: "Set Design", value: "set-design" },
+  { title: "Hospitality", value: "hospitality" },
+  { title: "Objects", value: "objects" },
 ];
 
 export default defineType({
