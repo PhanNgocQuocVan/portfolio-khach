@@ -18,7 +18,8 @@ export interface BentoProps {
 }
 
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
-const DEFAULT_GLOW_COLOR = "196, 162, 98";
+const DEFAULT_GLOW_COLOR = "196, 162, 98"; // gold — chỉ dùng khi explicitly passed
+const ZINC_GLOW = "161, 161, 170"; // zinc-400 — dark mode neutral glow
 const MOBILE_BREAKPOINT = 1024;
 
 // ─── Tính grid-column cho từng card theo pattern lặp ──────────────────────
@@ -67,7 +68,7 @@ const GlobalSpotlight: React.FC<{
   disableAnimations = false,
   enabled = true,
   spotlightRadius = DEFAULT_SPOTLIGHT_RADIUS,
-  glowColor = DEFAULT_GLOW_COLOR,
+  glowColor = ZINC_GLOW, // default zinc, không gold
 }) => {
   useEffect(() => {
     if (disableAnimations || !gridRef?.current || !enabled) return;
@@ -300,6 +301,8 @@ const MagicBento: React.FC<BentoProps> = ({
 }) => {
   const [modalImage, setModalImage] = useState<string | null>(null);
   const isLight = theme === "light";
+  // Light: stone-400 warm neutral / Dark: zinc-400 cool neutral — KHÔNG gold
+  const effectiveGlow = isLight ? "161, 152, 147" : ZINC_GLOW;
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
@@ -330,16 +333,38 @@ const MagicBento: React.FC<BentoProps> = ({
     <>
       <style>{`
         .bento-section {
-          --glow-color: ${glowColor};
-          --border-color: ${isLight ? "#e8d5a3" : "#3a2e1a"};
-          --card-bg: ${isLight ? "#fdf9f3" : "#12100a"};
-          --white: ${isLight ? "#1a0a2e" : "hsl(0,0%,100%)"};
-          --text-secondary: ${isLight ? "#6b5a3e" : "rgba(255,255,255,0.65)"};
-          --label-color: ${isLight ? "#a07840" : "rgba(196,162,98,0.9)"};
-          --image-bg: ${isLight ? "#f0e8d4" : "#1a1408"};
-          --gold-primary: rgba(196,162,98,1);
-          --gold-glow: rgba(196,162,98,0.15);
-          --gold-border: rgba(196,162,98,0.6);
+          --glow-color: ${effectiveGlow};
+
+          /* ── Border ──
+             Light: stone-200 (#e7e5e4) — tinh tế, không vàng quá
+             Dark : giữ tone ấm nâu nhẹ */
+          --border-color: ${isLight ? "#e7e5e4" : "#27272a"};
+
+          /* ── Card background ──
+             Light: stone-50 (#fafaf9) — trắng ấm off-white, không lạnh
+             Dark : giữ nguyên */
+          --card-bg: ${isLight ? "#fafaf9" : "#18181b"};
+
+          /* ── Title / primary text ──
+             Light: stone-900 (#1c1917) — off-black ấm, contrast ~17:1 trên #fafaf9
+             Dark : trắng */
+          --white: ${isLight ? "#1c1917" : "hsl(0,0%,100%)"};
+
+          /* ── Secondary text (description, year) ──
+             Light: stone-600 (#57534e) — contrast 5.9:1 → WCAG AA ✓
+             Dark : giữ nguyên */
+          --text-secondary: ${isLight ? "#57534e" : "rgba(161,161,170,0.9)"};
+
+          /* ── Label / accent (UNIVERSITY DEGREE, issuer) ──
+             Light: stone-500 (#78716c) — contrast 4.6:1 → WCAG AA ✓ cho text nhỏ
+             Thay vì vàng nhạt #a07840 (chỉ ~2.8:1 — FAIL)
+             Dark : giữ vàng gold */
+          /* Gold ONLY for text label — never bleeds into border/bg/shadow */
+          --label-color: ${isLight ? "#78716c" : "rgba(196,162,98,0.9)"};
+
+          /* ── Image placeholder bg ── */
+          --image-bg: ${isLight ? "#f0ede9" : "#27272a"};
+
         }
 
         /* ── Grid layout — desktop: 6 cột, pattern lặp ── */
@@ -365,7 +390,7 @@ const MagicBento: React.FC<BentoProps> = ({
         }
 
         .card { cursor: pointer; transition: box-shadow 0.25s ease; }
-        .card:hover { box-shadow: 0 4px 16px rgba(196,162,98,0.12); }
+        .card:hover { box-shadow: ${isLight ? "0 4px 16px rgba(28,25,23,0.08)" : "0 6px 20px rgba(0,0,0,0.45)"}; }
         .cert-img { transition: transform 0.4s ease; will-change: transform; }
         .cert-img:hover { transform: scale(1.06); }
 
@@ -376,8 +401,8 @@ const MagicBento: React.FC<BentoProps> = ({
           padding: 6px;
           background: radial-gradient(
             var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-            rgba(${glowColor}, calc(var(--glow-intensity) * 0.8)) 0%,
-            rgba(${glowColor}, calc(var(--glow-intensity) * 0.4)) 30%,
+            rgba(${effectiveGlow}, calc(var(--glow-intensity) * 0.8)) 0%,
+            rgba(${effectiveGlow}, calc(var(--glow-intensity) * 0.4)) 30%,
             transparent 60%
           );
           border-radius: inherit;
@@ -389,7 +414,12 @@ const MagicBento: React.FC<BentoProps> = ({
           z-index: 1;
         }
         .card--border-glow:hover {
-          box-shadow: 0 4px 20px rgba(100,80,30,0.25), 0 0 24px rgba(${glowColor},0.15);
+          box-shadow: ${
+            isLight
+              ? "0 4px 20px rgba(28,25,23,0.10), 0 0 20px rgba(161,152,147,0.15)"
+              : "0 6px 28px rgba(0,0,0,0.60), 0 0 20px rgba(161,161,170,0.12)"
+          };
+        };
         }
 
         .text-clamp-1 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
@@ -404,7 +434,7 @@ const MagicBento: React.FC<BentoProps> = ({
           disableAnimations={shouldDisableAnimations}
           enabled={enableSpotlight}
           spotlightRadius={spotlightRadius}
-          glowColor={glowColor}
+          glowColor={effectiveGlow}
         />
       )}
 

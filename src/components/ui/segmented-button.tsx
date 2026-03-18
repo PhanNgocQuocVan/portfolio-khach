@@ -84,7 +84,7 @@ export default function SegmentedButton({
       role="group"
     >
       <motion.div
-        className="absolute -top-0.5 h-7 rounded-full bg-[#A8A8A8]/30 dark:bg-white/30"
+        className="absolute -top-0.6 h-7 rounded-full bg-[#A8A8A8]/30 dark:bg-white/30"
         animate={{
           left: hoverStyle.left,
           width: hoverStyle.width,

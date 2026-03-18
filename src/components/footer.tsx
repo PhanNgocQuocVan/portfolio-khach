@@ -38,6 +38,13 @@ export default function Footer() {
           </span>
           <a
             href="mailto:doantuanh.work@gmail.com"
+            onClick={(e) => {
+              e.preventDefault();
+              window.open(
+                "https://mail.google.com/mail/?view=cm&to=doantuanh.work@gmail.com",
+                "_blank",
+              );
+            }}
             className="flex items-center gap-1 text-[12px] md:text-sm font-medium text-white hover:text-white/60 transition-colors"
           >
             doantuanh.work@gmail.com

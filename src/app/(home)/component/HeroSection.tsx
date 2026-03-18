@@ -62,13 +62,15 @@ export default function HeroSection() {
           </div>
           <div className="flex items-center gap-6">
             <a
-              href="#"
+              href="https://www.linkedin.com/in/thi-tu-anh-doan/"
+              target="_blank"
               className="text-[#1a1a1a] hover:underline text-sm font-medium"
             >
               LinkedIn
             </a>
             <a
-              href="#"
+              href="https://wa.me/+33622089782"
+              target="_blank"
               className="text-[#1a1a1a] hover:underline text-sm font-medium"
             >
               Whatsapp
@@ -116,7 +118,7 @@ export default function HeroSection() {
           </div>
           <div className="flex items-center gap-10">
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold text-[#1a1a1a]">2+</span>
+              <span className="text-3xl font-semibold text-[#1a1a1a]">3+</span>
               <span className="text-xs text-[#555] leading-snug">
                 Years of
                 <br />
@@ -162,11 +164,19 @@ export default function HeroSection() {
           </div>
 
           <div className="flex items-center gap-[10px] ml-2 mt-[1px] shrink-0">
-            <a href="#" className="text-[#1a1a1a] text-[11px] font-medium">
+            <a
+              href="https://www.linkedin.com/in/thi-tu-anh-doan/"
+              target="_blank"
+              className="text-[#1a1a1a] text-[11px] font-medium"
+            >
               LinkedIn
             </a>
             <span className="text-[#ccc] text-[10px]">·</span>
-            <a href="#" className="text-[#1a1a1a] text-[11px] font-medium">
+            <a
+              href="https://wa.me/+33622089782"
+              target="_blank"
+              className="text-[#1a1a1a] text-[11px] font-medium"
+            >
               WA
             </a>
             <div className="scale-[0.70] origin-right -mr-1">
