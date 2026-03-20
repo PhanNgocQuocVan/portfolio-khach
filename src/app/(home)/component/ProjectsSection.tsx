@@ -121,7 +121,8 @@ export default function ProjectsSection() {
   const isDark = useThemeStore((state) => state.isDark);
   const shadowColor = isDark ? "white" : "black";
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { amount: 0.1 });
+  const isInView = useInView(sectionRef, { amount: 0.1, once: true });
+  const hasAnimatedCards = useRef(false);
 
   // ── Fetch data từ Sanity ─────────────────────────────────────────
   const [allProjects, setAllProjects] = useState<ProjectCardData[]>([]);
@@ -225,97 +226,92 @@ export default function ProjectsSection() {
         </motion.div>
         {/* ── Dock — Desktop only ── */}
         <div className="hidden md:block">
-          <AnimatePresence>
-            {isInView && (
-              <motion.div
-                initial={{ y: 100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 100, opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="flex justify-center px-4 pointer-events-none mb-10"
-              >
-                <div className="pointer-events-auto">
-                  <Dock>
-                    {CATEGORY_LIST.map((cat) => {
-                      const isSelected = selectedCategories.includes(cat.value);
-                      const Icon = cat.icon;
-                      return (
-                        <DockItem
-                          key={cat.value}
-                          onClick={() => toggleCategory(cat.value)}
-                          className="flex flex-col items-center relative cursor-pointer"
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={isInView ? { y: 0, opacity: 1 } : { y: 100, opacity: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex justify-center px-4 pointer-events-none mb-10"
+          >
+            <div className="pointer-events-auto">
+              <Dock>
+                {CATEGORY_LIST.map((cat) => {
+                  const isSelected = selectedCategories.includes(cat.value);
+                  const Icon = cat.icon;
+                  return (
+                    <DockItem
+                      key={cat.value}
+                      onClick={() => toggleCategory(cat.value)}
+                      className="flex flex-col items-center relative cursor-pointer"
+                    >
+                      <DockIcon>
+                        <div
+                          className={`w-full h-full flex items-center justify-center rounded-lg transition-all duration-200 ${
+                            isSelected
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted text-muted-foreground"
+                          } ${
+                            !isSelected && selectedCategories.length > 0
+                              ? "opacity-40"
+                              : ""
+                          }`}
                         >
-                          <DockIcon>
-                            <div
-                              className={`w-full h-full flex items-center justify-center rounded-lg transition-all duration-200 ${
-                                isSelected
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                              } ${
-                                !isSelected && selectedCategories.length > 0
-                                  ? "opacity-40"
-                                  : ""
-                              }`}
-                            >
-                              <Icon size={20} />
-                            </div>
-                          </DockIcon>
-                          <DockLabel>{cat.label}</DockLabel>
-                          <div className="absolute -bottom-1 flex justify-center w-full">
-                            <motion.span
-                              initial={false}
-                              animate={{
-                                scale: isSelected ? 1 : 0,
-                                opacity: isSelected ? 1 : 0,
-                              }}
-                              className="h-1 w-1 rounded-full bg-primary"
-                            />
-                          </div>
-                        </DockItem>
-                      );
-                    })}
-                    <DockSeparator />
-                    {SOFTWARE_LIST.map((sw) => {
-                      const isSelected = selectedSoftware.includes(sw.name);
-                      return (
-                        <DockItem
-                          key={sw.name}
-                          onClick={() => toggleSoftware(sw.name)}
-                          className="flex flex-col items-center relative cursor-pointer dark:bg-white"
-                        >
-                          <DockIcon>
-                            <Image
-                              src={sw.icon}
-                              alt={sw.name}
-                              width={40}
-                              height={40}
-                              unoptimized
-                              className={`w-full h-full object-contain rounded-lg transition-all duration-200 ${
-                                !isSelected && selectedSoftware.length > 0
-                                  ? "opacity-40 grayscale"
-                                  : ""
-                              }`}
-                            />
-                          </DockIcon>
-                          <DockLabel>{sw.name}</DockLabel>
-                          <div className="absolute -bottom-1 flex justify-center w-full">
-                            <motion.span
-                              initial={false}
-                              animate={{
-                                scale: isSelected ? 1 : 0,
-                                opacity: isSelected ? 1 : 0,
-                              }}
-                              className="h-1 w-1 rounded-full bg-primary"
-                            />
-                          </div>
-                        </DockItem>
-                      );
-                    })}
-                  </Dock>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                          <Icon size={20} />
+                        </div>
+                      </DockIcon>
+                      <DockLabel>{cat.label}</DockLabel>
+                      <div className="absolute -bottom-1 flex justify-center w-full">
+                        <motion.span
+                          initial={false}
+                          animate={{
+                            scale: isSelected ? 1 : 0,
+                            opacity: isSelected ? 1 : 0,
+                          }}
+                          className="h-1 w-1 rounded-full bg-primary"
+                        />
+                      </div>
+                    </DockItem>
+                  );
+                })}
+                <DockSeparator />
+                {SOFTWARE_LIST.map((sw) => {
+                  const isSelected = selectedSoftware.includes(sw.name);
+                  return (
+                    <DockItem
+                      key={sw.name}
+                      onClick={() => toggleSoftware(sw.name)}
+                      className="flex flex-col items-center relative cursor-pointer dark:bg-white"
+                    >
+                      <DockIcon>
+                        <Image
+                          src={sw.icon}
+                          alt={sw.name}
+                          width={40}
+                          height={40}
+                          unoptimized
+                          className={`w-full h-full object-contain rounded-lg transition-all duration-200 ${
+                            !isSelected && selectedSoftware.length > 0
+                              ? "opacity-40 grayscale"
+                              : ""
+                          }`}
+                        />
+                      </DockIcon>
+                      <DockLabel>{sw.name}</DockLabel>
+                      <div className="absolute -bottom-1 flex justify-center w-full">
+                        <motion.span
+                          initial={false}
+                          animate={{
+                            scale: isSelected ? 1 : 0,
+                            opacity: isSelected ? 1 : 0,
+                          }}
+                          className="h-1 w-1 rounded-full bg-primary"
+                        />
+                      </div>
+                    </DockItem>
+                  );
+                })}
+              </Dock>
+            </div>
+          </motion.div>
         </div>
         {/* end hidden md:block */}
         {/* ── Mobile Filter — Mobile only ── */}
@@ -497,18 +493,29 @@ export default function ProjectsSection() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-x-6 md:gap-y-12">
               <AnimatePresence mode="popLayout">
-                {displayedProjects.map((project, i) => (
-                  <motion.div
-                    key={project._id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <ProjectCard project={project} index={i} />
-                  </motion.div>
-                ))}
+                {displayedProjects.map((project, i) => {
+                  const shouldAnimate = !hasAnimatedCards.current;
+                  return (
+                    <motion.div
+                      key={project._id}
+                      layout
+                      initial={
+                        shouldAnimate ? { opacity: 0, scale: 0.9 } : false
+                      }
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: shouldAnimate ? i * 0.05 : 0,
+                      }}
+                      onAnimationComplete={() => {
+                        hasAnimatedCards.current = true;
+                      }}
+                    >
+                      <ProjectCard project={project} index={i} />
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           )}

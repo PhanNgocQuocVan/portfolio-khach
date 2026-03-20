@@ -3,30 +3,23 @@ import { defineField, defineType } from "sanity";
 
 export default defineType({
   name: "contentBlock",
-  title: "Block nội dung",
+  title: "Content Block",
   type: "object",
 
-  // Preview trong danh sách block của Studio
+  // Preview trong Studio hiện rõ block chứa gì
   preview: {
     select: {
       text: "text",
-      media: "image",
+      image: "image",
+      videoUrl: "videoUrl",
     },
-    prepare({ text, media }) {
-      // Lấy dòng đầu tiên của Portable Text làm title preview
-      const firstText = text?.[0]?.children?.[0]?.text;
-      const hasImage = !!media;
-
-      let subtitle = "";
-      if (firstText && hasImage) subtitle = "Text + Hình";
-      else if (firstText) subtitle = "Chỉ có text → full width";
-      else if (hasImage) subtitle = "Chỉ có hình → full width";
-      else subtitle = "(Trống)";
-
+    prepare({ text, image, videoUrl }) {
+      const parts = [];
+      if (text && text.length > 0) parts.push("📝 Text");
+      if (image) parts.push("🖼 Hình");
+      if (videoUrl) parts.push("🎬 Video");
       return {
-        title: firstText ?? "(Không có text)",
-        subtitle,
-        media,
+        title: parts.length > 0 ? parts.join(" + ") : "Block trống",
       };
     },
   },
@@ -35,7 +28,6 @@ export default defineType({
     defineField({
       name: "text",
       title: "Nội dung văn bản",
-      description: "Để trống nếu block này chỉ có hình",
       type: "array",
       of: [
         {
@@ -59,17 +51,32 @@ export default defineType({
     defineField({
       name: "image",
       title: "Hình ảnh",
-      description: "Để trống nếu block này chỉ có text",
       type: "image",
       options: { hotspot: true },
       fields: [
-        // Caption nằm ngay trong field image cho gọn
         defineField({
           name: "caption",
           title: "Caption",
           type: "string",
         }),
       ],
+    }),
+
+    defineField({
+      name: "videoUrl",
+      title: "Video URL (YouTube embed)",
+      type: "url",
+      description:
+        "Dán link dạng: https://www.youtube.com/embed/VIDEO_ID — tối đa chọn 2 trong 3 (text / hình / video)",
+    }),
+
+    defineField({
+      name: "videoThumbnail",
+      title: "Video Thumbnail",
+      type: "image",
+      options: { hotspot: true },
+      description:
+        "Ảnh preview trước khi play video (để trống sẽ dùng ảnh mặc định)",
     }),
   ],
 });

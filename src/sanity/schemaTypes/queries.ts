@@ -1,6 +1,7 @@
 // lib/sanity/queries.ts
 
-// ── Danh sách (dùng cho ProjectsSection) ──────────────────────────
+// ── PROJECTS ──────────────────────────────────────────────────────
+
 export const PROJECTS_LIST_QUERY = `
   *[_type == "project"] | order(year desc) {
     _id,
@@ -13,27 +14,22 @@ export const PROJECTS_LIST_QUERY = `
   }
 `;
 
-// ── Chi tiết 1 project (dùng cho trang detail) ────────────────────
 export const PROJECT_DETAIL_QUERY = `
   *[_type == "project" && _id == $id][0] {
-    _id,
-    title,
-    year,
-    description,
+    _id, title, year, description,
     "heroImage": heroImage.asset->url,
-    software,
-    category,
+    software, category,
     contentBlocks[] {
       text,
       "image": {
         "url": image.asset->url,
         "caption": image.caption
-      }
+      },
+      videoUrl,
+      "videoThumbnail": videoThumbnail.asset->url
     }
   }
 `;
-
-// ── TypeScript types ──────────────────────────────────────────────
 
 export interface ProjectCardData {
   _id: string;
@@ -46,17 +42,27 @@ export interface ProjectCardData {
 }
 
 export interface ContentBlock {
-  text?: any[]; // Portable Text
+  text?: any[];
   image?: {
     url: string;
     caption?: string;
   };
+  videoUrl?: string;
+  videoThumbnail?: string;
 }
 
-export interface ProjectDetailData extends ProjectCardData {
+export interface ProjectDetailData {
+  _id: string;
+  title: string;
+  year?: string;
+  description?: string;
   heroImage?: string;
+  software?: string[];
+  category?: string[];
   contentBlocks?: ContentBlock[];
 }
+
+// ── EXPERIENCE ────────────────────────────────────────────────────
 
 export const EXPERIENCES_QUERY = `
   *[_type == "experience"] | order(date desc) {
@@ -80,7 +86,7 @@ export interface ExperienceData {
   image?: string;
 }
 
-// Thêm vào file lib/sanity/queries.ts
+// ── EDUCATION ─────────────────────────────────────────────────────
 
 export const EDUCATION_QUERY = `
   *[_type == "education"] | order(order asc, year desc) {

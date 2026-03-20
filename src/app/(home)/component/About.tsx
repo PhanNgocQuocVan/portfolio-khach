@@ -8,14 +8,16 @@ import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { toYouTubeEmbed } from "@/lib/youtube";
 
 const FALLBACK_VIDEO = "https://www.youtube.com/embed/AmO9d88Ovfs";
-const FALLBACK_THUMBNAIL = "https://wallpapercave.com/wp/wp6514888.jpg";
 
 export default function About() {
   const [cvUrl, setCvUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>(FALLBACK_VIDEO);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>(FALLBACK_THUMBNAIL);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>(
+    "/images/default-thumbnail.png",
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function About() {
         }`;
         const data = await client.fetch(query);
         if (data?.url) setCvUrl(data.url);
-        if (data?.videoUrl) setVideoUrl(data.videoUrl);
+        if (data?.videoUrl) setVideoUrl(toYouTubeEmbed(data.videoUrl));
         if (data?.videoThumbnail) setThumbnailUrl(data.videoThumbnail);
       } catch (error) {
         console.error("Lỗi lấy dữ liệu About:", error);
@@ -55,7 +57,6 @@ export default function About() {
   return (
     <section id="about" className="relative w-full py-12 md:py-20">
       <div className="max-w-screen-xl mx-auto px-4 md:px-6">
-        {/* Heading */}
         <BlurFade delay={0.25} inView>
           <SparklesText className="text-3xl md:text-5xl lg:text-7xl mb-8 md:mb-12 text-center font-palatino">
             About me
