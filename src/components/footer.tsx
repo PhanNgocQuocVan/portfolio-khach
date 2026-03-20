@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { TextHoverEffect } from "./ui/text-hover-effect";
 import { AnimatedTooltip } from "./ui/animated-tooltip";
@@ -8,21 +10,21 @@ export default function Footer() {
       id: 1,
       name: "Zalo",
       url: "https://zalo.me/+33622089782",
-      image: "images/zalo.png",
+      image: "/images/zalo.png",
       color: "#0068FF",
     },
     {
       id: 2,
       name: "linkedin",
       url: "https://www.linkedin.com/in/thi-tu-anh-doan/",
-      image: "images/linkind.png",
+      image: "/images/linkind.png",
       color: "#0A66C2",
     },
     {
       id: 3,
       name: "Whatsapp",
       url: "https://wa.me/+33622089782",
-      image: "images/whatsapp.png",
+      image: "/images/whatsapp.png",
       color: "#25D366",
     },
   ];

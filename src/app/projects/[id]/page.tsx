@@ -9,7 +9,8 @@ import {
 } from "@/sanity/schemaTypes/queries";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import { toYouTubeEmbed } from "@/lib/youtube";
-
+import Footer from "@/components/footer";
+import { BackButton } from "@/components/back-button";
 // ── Portable Text components ──────────────────────────────────────
 const ptComponents = {
   block: {
@@ -63,7 +64,6 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
   const hasVideo = !!block.videoUrl;
   const count = [hasText, hasImage, hasVideo].filter(Boolean).length;
 
-  // ── Chỉ 1 loại → full width ───────────────────────────────────
   if (count <= 1) {
     if (hasText)
       return (
@@ -109,10 +109,7 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
     return null;
   }
 
-  // ── 2 loại → 2 cột xen kẽ trái/phải theo index ───────────────
   const isEven = index % 2 === 0;
-
-  // Xây phần tử A và B theo thứ tự ưu tiên: text > image > video
   const elements: React.ReactNode[] = [];
 
   if (hasText)
@@ -150,7 +147,6 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
       </div>,
     );
 
-  // index chẵn = giữ nguyên thứ tự, index lẻ = đảo ngược
   const ordered = isEven ? elements : [...elements].reverse();
 
   return (
@@ -180,60 +176,83 @@ export default async function ProjectDetailPage({
 
   return (
     <main className="min-h-screen">
-      {/* ── Header ───────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 py-8 md:px-20 border-b border-border">
-        {project.category && project.category.length > 0 && (
-          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-foreground/40">
-            {project.category.join(" · ")}
-          </p>
+      {/* ── Hero Image with overlay header ───────────────────────── */}
+      <section
+        className="relative w-full"
+        style={{ height: "clamp(360px, 55vw, 680px)" }}
+      >
+        {project.heroImage && (
+          <img
+            src={project.heroImage}
+            alt={project.title}
+            className="w-full h-full object-cover"
+          />
         )}
-        <h1 className="mb-6 text-4xl font-bold leading-tight md:text-6xl font-palatino text-center">
-          {project.title}
-        </h1>
-        <div className="flex flex-wrap gap-8 text-sm text-foreground/50">
-          {project.year && (
-            <div className="flex gap-3 items-center">
-              <span className="block font-semibold text-foreground/80 mb-0.5">
-                Year
-              </span>
-              {project.year}
-            </div>
-          )}
-          {project.software && project.software.length > 0 && (
-            <div className="flex gap-3 items-center">
-              <span className="block font-semibold text-foreground/80 mb-0.5">
-                Software
-              </span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {project.software.map((sw) => (
-                  <span
-                    key={sw}
-                    className="px-2.5 py-0.5 rounded-full text-xs border border-border text-foreground/60"
-                  >
-                    {sw}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+
+        {/* Dark gradient overlay at bottom for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/20" />
+
+        {/* Back button — top left */}
+        <div className="absolute top-5 left-6 md:left-10 z-10">
+          <BackButton />
         </div>
       </section>
 
-      {/* ── Hero Image ───────────────────────────────────────────── */}
-      {project.heroImage && (
-        <section className="max-w-7xl mx-auto px-6 py-10 md:px-20">
-          <div
-            className="relative overflow-hidden rounded-2xl"
-            style={{ height: "clamp(360px, 55vw, 680px)" }}
-          >
-            <img
-              src={project.heroImage}
-              alt={project.title}
-              className="w-full h-full object-cover"
-            />
+      {/* ── Title + Metadata row ─────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-10 py-10 border-b border-border">
+        {/* Category eyebrow */}
+        {project.category && project.category.length > 0 && (
+          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/40">
+            {project.category.join(" · ")}
+          </p>
+        )}
+
+        {/* Title + Metadata ngang */}
+        <div className="flex flex-row items-end gap-12">
+          {/* Title */}
+          <h1 className="flex-1 text-[clamp(2.4rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-foreground font-palatino m-0">
+            {project.title}
+          </h1>
+
+          {/* Metadata strip — thẳng hàng dưới với title */}
+          <div className="flex-shrink-0 flex items-stretch  pl-10 pb-1">
+            {project.year && (
+              <div className="pr-8">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1">
+                  Year
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  {project.year}
+                </span>
+              </div>
+            )}
+
+            {project.year &&
+              project.software &&
+              project.software.length > 0 && (
+                <div className="w-px bg-border self-stretch" />
+              )}
+
+            {project.software && project.software.length > 0 && (
+              <div className="pl-8">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1.5">
+                  Software
+                </span>
+                <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                  {project.software.map((sw) => (
+                    <span
+                      key={sw}
+                      className="px-2.5 py-0.5 rounded-full text-[11px] border border-border text-foreground/60"
+                    >
+                      {sw}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* ── Content Blocks ───────────────────────────────────────── */}
       {project.contentBlocks && project.contentBlocks.length > 0 && (
@@ -243,6 +262,9 @@ export default async function ProjectDetailPage({
           ))}
         </div>
       )}
+
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      <Footer />
     </main>
   );
 }
