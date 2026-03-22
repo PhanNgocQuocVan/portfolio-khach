@@ -162,7 +162,7 @@ export default function ContactSection() {
         </h2>
         <p className="text-center text-sm md:text-base max-w-2xl mx-auto text-foreground/60">
           Whether you have a specific project in mind or just want to say hi, my
-          inbox is always open. Let's create something timeless
+          inbox is always open. Let&apos;s create something timeless
         </p>
       </div>
 
@@ -197,7 +197,7 @@ export default function ContactSection() {
 
             {/* Heading */}
             <h2 className="text-2xl md:text-3xl font-semibold mb-1.5 tracking-tight text-zinc-900 dark:text-zinc-50">
-              Let's work together
+              Let&apos;s work together
             </h2>
             <p className="text-sm mb-7 leading-relaxed text-zinc-500 dark:text-zinc-500">
               Have a project in mind? Tell me more about it and let's start a

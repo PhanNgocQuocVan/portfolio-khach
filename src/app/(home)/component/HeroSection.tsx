@@ -1,8 +1,12 @@
 "use client";
-import Grainient from "@/components/Grainient";
+import dynamic from "next/dynamic";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+
+const Grainient = dynamic(() => import("@/components/Grainient"), {
+  ssr: false,
+});
 
 export default function HeroSection() {
   const containerRef = useRef(null);

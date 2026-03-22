@@ -122,7 +122,12 @@ export default function ProjectsSection() {
   const shadowColor = isDark ? "white" : "black";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { amount: 0.1, once: true });
-  const hasAnimatedCards = useRef(false);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsInitialRender(false);
+  }, []);
 
   // ── Fetch data từ Sanity ─────────────────────────────────────────
   const [allProjects, setAllProjects] = useState<ProjectCardData[]>([]);
@@ -141,6 +146,7 @@ export default function ProjectsSection() {
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisibleCount(6);
   }, [selectedCategories, selectedSoftware]);
 
@@ -494,7 +500,7 @@ export default function ProjectsSection() {
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-x-6 md:gap-y-12">
               <AnimatePresence mode="popLayout">
                 {displayedProjects.map((project, i) => {
-                  const shouldAnimate = !hasAnimatedCards.current;
+                  const shouldAnimate = isInitialRender;
                   return (
                     <motion.div
                       key={project._id}
@@ -507,9 +513,6 @@ export default function ProjectsSection() {
                       transition={{
                         duration: 0.3,
                         delay: shouldAnimate ? i * 0.05 : 0,
-                      }}
-                      onAnimationComplete={() => {
-                        hasAnimatedCards.current = true;
                       }}
                     >
                       <ProjectCard project={project} index={i} />

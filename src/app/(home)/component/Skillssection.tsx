@@ -191,7 +191,7 @@ function useCountAnimation(
       delay * 1000 + 100,
     );
     return () => clearTimeout(timeout);
-  }, [inView]);
+  }, [inView, delay, target]);
 
   return [count];
 }

@@ -64,7 +64,7 @@ export default function ExperienceSection() {
                         {formatDate(exp.date)}
                       </time>
                       {exp.version && (
-                        <div className="inline-flex relative z-10 items-center justify-center w-10 h-10 text-foreground border border-border rounded-lg text-sm font-bold">
+                        <div className="inline-flex relative z-10 items-center justify-center w-18 h-10 text-foreground border border-border rounded-lg text-sm font-bold">
                           {exp.version}
                         </div>
                       )}

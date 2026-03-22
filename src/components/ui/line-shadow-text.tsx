@@ -12,6 +12,8 @@ interface LineShadowTextProps
   as?: React.ElementType
 }
 
+const motionComponentCache = new Map<React.ElementType, any>()
+
 export function LineShadowText({
   children,
   shadowColor = "black",
@@ -19,7 +21,12 @@ export function LineShadowText({
   as: Component = "span",
   ...props
 }: LineShadowTextProps) {
-  const MotionComponent = motion.create(Component)
+  if (!motionComponentCache.has(Component)) {
+    motionComponentCache.set(Component, motion.create(Component as any))
+  }
+  // eslint-disable-next-line react-hooks/static-components
+  const MotionComponent = motionComponentCache.get(Component)
+
   const content = typeof children === "string" ? children : null
 
   if (!content) {

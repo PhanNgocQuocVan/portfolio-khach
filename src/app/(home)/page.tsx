@@ -1,9 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Preloader from "@/components/ui/Preloader";
 import { Navbar } from "@/components/ui/navbar";
-import ColorBends from "@/components/ColorBends";
 import HeroSection from "./component/HeroSection";
 import ProjectsSection from "./component/ProjectsSection";
 import ExperienceSection from "./component/ExperienceSection";

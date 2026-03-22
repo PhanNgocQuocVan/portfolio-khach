@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { useThemeStore } from "@/store/useThemeStore";
 
 export const TextHoverEffect = ({
   text,
@@ -18,22 +19,12 @@ export const TextHoverEffect = ({
   const measureRef = useRef<SVGTextElement>(null);
   const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const isDarkStore = useThemeStore((state) => state.isDark);
+  const [isDark, setIsDark] = useState(isDarkStore);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(
-      document.documentElement.classList.contains("dark") || mq.matches,
-    );
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
+    setIsDark(isDarkStore);
+  }, [isDarkStore]);
 
   // Resolved color: forceColor prop wins, then theme
   const isLight =

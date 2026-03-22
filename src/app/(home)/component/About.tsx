@@ -75,7 +75,7 @@ export default function About() {
                 multicultural and global environments.
               </p>
               <p className="text-start text-base md:text-lg text-[#555] dark:text-gray-300">
-                Holding two master's degrees in Interior Architecture, with
+                Holding two master&apos;s degrees in Interior Architecture, with
                 specializations in Global Design and Luxury Scenography, I have
                 developed a practice grounded in both narrative sensitivity and
                 technical precision.

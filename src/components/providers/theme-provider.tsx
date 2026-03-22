@@ -8,6 +8,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
     // Áp dụng class dark dựa trên store
     if (isDark) {
       document.documentElement.classList.add("dark");
