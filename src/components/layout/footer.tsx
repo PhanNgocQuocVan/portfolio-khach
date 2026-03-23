@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { TextHoverEffect } from "./ui/text-hover-effect";
-import { AnimatedTooltip } from "./ui/animated-tooltip";
+import { TextHoverEffect } from "@/components/ui/text-hover-effect";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 
 export default function Footer() {
   const socialLinks = [

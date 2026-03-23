@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import SegmentedButton from "./segmented-button";
 import { AnimatedThemeToggler } from "./animated-theme-toggler";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import StaggeredMenu from "@/components/StaggeredMenu";
+import StaggeredMenu from "@/components/animations/StaggeredMenu";
 
 const navItems = [
   { id: "home", label: "Home" },

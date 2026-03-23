@@ -1,5 +1,5 @@
 "use client";
-import MagicBento from "@/components/MagicBento";
+import MagicBento from "@/components/animations/MagicBento";
 import { useThemeStore } from "@/store/useThemeStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";

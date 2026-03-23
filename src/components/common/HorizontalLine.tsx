@@ -1,4 +1,4 @@
-import { Marquee } from "./ui/marquee";
+import { Marquee } from "@/components/ui/marquee";
 
 export default function HorizontalLine() {
   return (

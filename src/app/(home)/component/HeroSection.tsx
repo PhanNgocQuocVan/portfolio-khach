@@ -4,7 +4,7 @@ import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 
-const Grainient = dynamic(() => import("@/components/Grainient"), {
+const Grainient = dynamic(() => import("@/components/animations/Grainient"), {
   ssr: false,
 });
 

@@ -8,9 +8,9 @@ import ExperienceSection from "./component/ExperienceSection";
 import EducationAwardsSection from "./component/EducationAwardsSection";
 import ContactSection from "./component/ContactSection";
 import About from "./component/About";
-import HorizontalLine from "@/components/HorizontalLine";
+import HorizontalLine from "@/components/common/HorizontalLine";
 import { useLoadingStore } from "@/store/useLoadingStore";
-import Footer from "@/components/footer";
+import Footer from "@/components/layout/footer";
 import Skillssection from "./component/Skillssection";
 import { useIsMobile } from "@/hooks/useIsMobile";
 

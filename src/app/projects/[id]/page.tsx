@@ -9,8 +9,8 @@ import {
 } from "@/sanity/schemaTypes/queries";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import { toYouTubeEmbed } from "@/lib/youtube";
-import Footer from "@/components/footer";
-import { BackButton } from "@/components/back-button";
+import Footer from "@/components/layout/footer";
+import { BackButton } from "@/components/layout/back-button";
 // ── Portable Text components ──────────────────────────────────────
 const ptComponents = {
   block: {
