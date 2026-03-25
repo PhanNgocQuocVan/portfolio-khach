@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import Preloader from "@/components/ui/Preloader";
 import { Navbar } from "@/components/ui/navbar";
 import HeroSection from "./component/HeroSection";
-import ProjectsSection from "./component/ProjectsSection";
 import ExperienceSection from "./component/ExperienceSection";
 import EducationAwardsSection from "./component/EducationAwardsSection";
 import ContactSection from "./component/ContactSection";
@@ -13,6 +12,7 @@ import { useLoadingStore } from "@/store/useLoadingStore";
 import Footer from "@/components/layout/footer";
 import Skillssection from "./component/Skillssection";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import ProjectsSection from "./component/ProjectsSection";
 
 // Import các section bạn sẽ viết sau này
 // import Hero from "./component/Hero";

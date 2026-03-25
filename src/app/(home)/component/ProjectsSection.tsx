@@ -27,6 +27,7 @@ import {
   ChevronDown,
   X,
   SlidersHorizontal,
+  Sofa,
 } from "lucide-react";
 
 // ─── Mobile Dropdown Filter Component ────────────────────────────────────────
@@ -114,7 +115,7 @@ const CATEGORY_LIST = [
   { value: "retail", label: "Retail", icon: Store },
   { value: "set-design", label: "Set Design", icon: Clapperboard },
   { value: "hospitality", label: "Hospitality", icon: UtensilsCrossed },
-  { value: "objects", label: "Objects", icon: HardHat },
+  { value: "objects", label: "Objects", icon: Sofa },
 ];
 
 export default function ProjectsSection() {

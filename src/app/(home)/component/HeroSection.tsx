@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { LiquidMetalButton } from "@/components/ui/liquid-metal-button";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
@@ -60,7 +61,7 @@ export default function HeroSection() {
             <p className="text-[#1a1a1a] text-lg font-semibold tracking-tight">
               Thi Tu Anh (Annie) Doan
             </p>
-            <p className="text-[#555] text-sm font-normal tracking-wide">
+            <p className="text-[#1a1a1a] text-sm font-normal tracking-wide">
               Retail & Scenography Designer
             </p>
           </div>
@@ -114,7 +115,7 @@ export default function HeroSection() {
                 />
               </svg>
             </button>
-            <p className="text-[#555] text-sm max-w-sm leading-relaxed">
+            <p className="text-[#1a1a1a] text-sm max-w-sm leading-relaxed">
               I design retail and experiential spaces where brand identity
               becomes physical. From concept to completion, I move between
               vision and execution.
@@ -123,7 +124,7 @@ export default function HeroSection() {
           <div className="flex items-center gap-10">
             <div className="flex items-center gap-3">
               <span className="text-3xl font-semibold text-[#1a1a1a]">3+</span>
-              <span className="text-xs text-[#555] leading-snug">
+              <span className="text-xs text-[#1a1a1a] leading-snug">
                 Years of
                 <br />
                 Experience
@@ -138,13 +139,25 @@ export default function HeroSection() {
       {/* Desktop center portrait */}
       <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none z-40">
         <div className="relative w-[20vw] h-[35vw] min-w-[250px] min-h-[375px] max-w-[400px] max-h-[650px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 via-transparent to-purple-400/20 rounded-full blur-3xl" />
-          <div className="absolute inset-0 rounded-full backdrop-blur-md ring-[10px] ring-gray-300/20" />
-          <img
-            src="/images/annie-doan.png"
-            alt="Annie Doan"
-            className="relative z-10 w-full h-full object-cover rounded-full shadow-2xl"
-          />
+          {/* Glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 via-transparent to-purple-400/20 rounded-[999px] blur-3xl" />
+          {/* Ring (trên cùng, z cao hơn ảnh) */}
+          <div className="absolute inset-0 rounded-[999px] ring-[10px] ring-gray-300/20 z-20 pointer-events-none" />
+          {/* Ảnh — bị clip bởi overflow-hidden của container */}
+          <div className="absolute inset-0 rounded-[999px] overflow-hidden z-10">
+            <Image
+              src="/images/annie-doan.png"
+              alt="Annie Doan"
+              fill
+              className="object-cover"
+              quality={100}
+              style={{
+                objectPosition: "60% 30px",
+                transform: "scale(2)", // 1.2 = phóng to 120%, 0.8 = thu nhỏ
+                transformOrigin: "center 30%", // điểm neo khi scale
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -162,7 +175,7 @@ export default function HeroSection() {
             <p className="text-[#1a1a1a] text-[15px] font-semibold tracking-tight leading-none">
               Thi Tu Anh (Annie) Doan
             </p>
-            <p className="text-[#666] text-[10px] tracking-[0.14em] uppercase mt-[5px] leading-none">
+            <p className="text-[#1a1a1a] text-[10px] tracking-[0.14em] uppercase mt-[5px] leading-none">
               Retail & Scenography Designer
             </p>
           </div>
@@ -219,9 +232,11 @@ export default function HeroSection() {
               }}
             />
             {/* Photo */}
-            <img
+            <Image
               src="/images/annie-doan.png"
               alt="Annie Doan"
+              width={290}
+              height={290}
               className="relative z-10 w-full h-full object-cover object-top rounded-full"
               style={{ boxShadow: "0 12px 48px rgba(0,0,0,0.16)" }}
             />
@@ -233,7 +248,7 @@ export default function HeroSection() {
             clears any floating bottom nav   */}
         <div className="shrink-0 px-5 pb-16 flex flex-col items-center gap-4">
           {/* Bio */}
-          <p className="text-[#4d4d4d] text-[11.5px] leading-[1.8] text-center max-w-[300px]">
+          <p className="text-[#1a1a1a] text-[11.5px] leading-[1.8] text-center max-w-[300px]">
             I design retail and experiential spaces where brand identity becomes
             physical. From concept to completion, I move between vision and
             execution.
@@ -251,9 +266,9 @@ export default function HeroSection() {
             {/* Years */}
             <div className="flex flex-col items-center justify-center gap-1 flex-1 py-1">
               <span className="text-[28px] font-semibold text-[#1a1a1a] leading-none">
-                2+
+                3+
               </span>
-              <span className="text-[9px] text-[#777] text-center uppercase tracking-[0.1em] leading-[1.5]">
+              <span className="text-[9px] text-[#1a1a1a] text-center uppercase tracking-[0.1em] leading-[1.5]">
                 Years of
                 <br />
                 Experience
@@ -288,7 +303,7 @@ export default function HeroSection() {
                   />
                 </svg>
               </div>
-              <span className="text-[9px] text-[#777] text-center uppercase tracking-[0.1em] leading-[1.5]">
+              <span className="text-[9px] text-[#1a1a1a] text-center uppercase tracking-[0.1em] leading-[1.5]">
                 2 Master's
                 <br />
                 Degrees
@@ -316,7 +331,7 @@ export default function HeroSection() {
                   />
                 </svg>
               </div>
-              <span className="text-[9px] text-[#777] text-center uppercase tracking-[0.1em] leading-[1.5]">
+              <span className="text-[9px] text-[#1a1a1a] text-center uppercase tracking-[0.1em] leading-[1.5]">
                 3 Fluent
                 <br />
                 Languages
@@ -379,7 +394,7 @@ function DesktopStatIcon({
           </svg>
         )}
       </div>
-      <span className="text-xs text-[#555]">{label}</span>
+      <span className="text-xs text-[#1a1a1a]">{label}</span>
     </div>
   );
 }

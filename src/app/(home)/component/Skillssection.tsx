@@ -11,6 +11,7 @@ interface SkillItem {
   code: string;
   level?: string;
   hideValue?: boolean;
+  hideTick?: boolean;
 }
 
 interface SkillBarProps extends SkillItem {
@@ -33,10 +34,38 @@ interface SkillGroupProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const languages: SkillItem[] = [
-  { label: "English", value: 85, level: "C1", code: "EN" },
-  { label: "French", value: 93, level: "C2", code: "FR" },
-  { label: "Vietnamese", value: 98, level: "Native", code: "VI" },
-  { label: "Italian", value: 40, level: "C2", code: "IT" },
+  {
+    label: "English",
+    value: 85,
+    level: "C1",
+    code: "EN",
+    hideValue: true,
+    hideTick: true,
+  },
+  {
+    label: "French",
+    value: 93,
+    level: "C2",
+    code: "FR",
+    hideValue: true,
+    hideTick: true,
+  },
+  {
+    label: "Vietnamese",
+    value: 98,
+    level: "Native",
+    code: "VI",
+    hideValue: true,
+    hideTick: true,
+  },
+  {
+    label: "Italian",
+    value: 40,
+    level: "A2",
+    code: "IT",
+    hideValue: true,
+    hideTick: true,
+  },
 ];
 
 const skills: SkillItem[] = [
@@ -74,6 +103,7 @@ function SkillBar({
   code,
   level,
   hideValue,
+  hideTick,
   index,
 }: SkillBarProps) {
   const ref = useRef(null);
@@ -111,19 +141,21 @@ function SkillBar({
           transition={{ delay: index * 0.1 + 0.35, duration: 0.4 }}
         >
           {hideValue ? (
-            <svg
-              className="w-4 h-4 text-foreground/60 ml-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            !hideTick && (
+              <svg
+                className="w-4 h-4 text-foreground/60 ml-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )
           ) : (
             <>
               <CountUp value={value} inView={inView} delay={index * 0.1} />
@@ -132,7 +164,7 @@ function SkillBar({
           )}
           {level && (
             <span className="text-foreground/50 ml-1.5 uppercase font-medium tracking-wider">
-              - {level}
+              {level}
             </span>
           )}
         </motion.span>

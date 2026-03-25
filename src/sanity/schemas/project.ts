@@ -2,8 +2,8 @@
 import { defineField, defineType } from "sanity";
 
 const SOFTWARE_OPTIONS = [
-  { title: "Adobe CC", value: "Adobe CC" },
-  { title: "AutoCAD", value: "AutoCAD" },
+  { title: "Adobe CC", value: "Adobe" },
+  { title: "AutoCAD", value: "CAD" },
   { title: "SketchUp", value: "SketchUp" },
   { title: "3DsMax", value: "3DsMax" },
   { title: "Vray", value: "Vray" },
@@ -14,10 +14,10 @@ const SOFTWARE_OPTIONS = [
 ];
 
 const CATEGORY_OPTIONS = [
-  { title: "Retail", value: "retail" },
-  { title: "Set Design", value: "set-design" },
-  { title: "Hospitality", value: "hospitality" },
-  { title: "Objects", value: "objects" },
+  { title: "Concept Design", value: "concept-design" },
+  { title: "Technical Drawings", value: "technical-drawings" },
+  { title: "3D & Render", value: "3d-render" },
+  { title: "Coordination & Execution", value: "coordination" },
 ];
 
 export default defineType({
@@ -70,6 +70,18 @@ export default defineType({
       type: "image",
       group: "info",
       options: { hotspot: true },
+    }),
+
+    defineField({
+      name: "previewVideo",
+      title: "Video preview (hover trên card)",
+      description:
+        "Upload video ngắn MP4/WebM — tự động phát khi hover, dừng khi rời chuột. Để trống thì dùng ảnh thumbnail bình thường.",
+      type: "file",
+      group: "info",
+      options: {
+        accept: "video/mp4,video/webm",
+      },
     }),
 
     defineField({

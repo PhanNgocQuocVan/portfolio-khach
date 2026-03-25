@@ -3,7 +3,18 @@
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { ProjectCardData } from "@/sanity/schemaTypes/queries";
+import { useRef, useEffect, useState } from "react";
+import type { ProjectCardData } from "@/sanity/schemaTypes/queries";
+
+// ── Mobile detection (touch device = không hover được) ────────────
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    setIsTouch(window.matchMedia("(hover: none)").matches);
+  }, []);
+  return isTouch;
+}
+
 export default function ProjectCard({
   project,
   index,
@@ -11,21 +22,65 @@ export default function ProjectCard({
   project: ProjectCardData;
   index: number;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isTouch = useIsTouchDevice();
+
+  // Tất cả hooks phải gọi trước guard
+  const hasVideo = !!project?.previewVideo;
+  const showVideo = hasVideo && !isTouch;
+
+  if (!project) return null;
+
+  const handleMouseEnter = () => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(() => {});
+  };
+
+  const handleMouseLeave = () => {
+    if (!videoRef.current) return;
+    videoRef.current.pause();
+    videoRef.current.currentTime = 0;
+  };
+
   return (
     <Link href={`/projects/${project._id}`}>
-      <motion.div className="group cursor-pointer">
-        {/* Image container */}
+      <motion.div
+        className="group cursor-pointer"
+        onMouseEnter={showVideo ? handleMouseEnter : undefined}
+        onMouseLeave={showVideo ? handleMouseLeave : undefined}
+      >
+        {/* ── Thumbnail / Video container ─────────────────────── */}
         <div className="relative overflow-hidden rounded-xl aspect-[4/3] bg-muted mb-3 shadow-sm group-hover:shadow-2xl transition-shadow duration-500">
+          {/* Static thumbnail — luôn hiện, fade out khi video play */}
           <img
             src={project.thumbnail ?? "/images/project-default.jpg"}
             alt={project.title}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+            className={cn(
+              "w-full h-full object-cover transition-all duration-700 ease-out",
+              showVideo
+                ? "group-hover:opacity-0 group-hover:scale-[1.02]"
+                : "group-hover:scale-[1.06]",
+            )}
           />
 
-          {/* Gradient overlay khi hover */}
+          {/* Video — chỉ render nếu có URL và không phải touch device */}
+          {showVideo && (
+            <video
+              ref={videoRef}
+              src={project.previewVideo}
+              muted
+              loop
+              playsInline
+              poster={project.thumbnail ?? undefined}
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            />
+          )}
+
+          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
 
-          {/* Software tags nổi lên khi hover */}
+          {/* Software tags */}
           {project.software && project.software.length > 0 && (
             <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
               {project.software.map((tag) => (
@@ -39,7 +94,7 @@ export default function ProjectCard({
             </div>
           )}
 
-          {/* Arrow button góc trên phải */}
+          {/* Arrow button */}
           <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 shadow-md">
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
               <path
@@ -53,7 +108,7 @@ export default function ProjectCard({
           </div>
         </div>
 
-        {/* Info */}
+        {/* ── Info ─────────────────────────────────────────────── */}
         <div className="space-y-1 px-0.5">
           {project.software && project.software.length > 0 && (
             <div className="flex flex-wrap gap-1 group-hover:opacity-0 transition-opacity duration-200">

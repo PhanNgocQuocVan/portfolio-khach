@@ -9,6 +9,7 @@ export const PROJECTS_LIST_QUERY = `
     year,
     description,
     "thumbnail": thumbnail.asset->url,
+    "previewVideo": previewVideo.asset->url,
     software,
     category
   }
@@ -37,6 +38,7 @@ export interface ProjectCardData {
   year?: string;
   description?: string;
   thumbnail?: string;
+  previewVideo?: string;
   software?: string[];
   category?: string[];
 }
