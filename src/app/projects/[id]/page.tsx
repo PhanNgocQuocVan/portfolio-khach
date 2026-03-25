@@ -11,6 +11,8 @@ import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import { toYouTubeEmbed } from "@/lib/youtube";
 import Footer from "@/components/layout/footer";
 import { BackButton } from "@/components/layout/back-button";
+import StackGallery from "@/components/ui/StackGallery";
+
 // ── Portable Text components ──────────────────────────────────────
 const ptComponents = {
   block: {
@@ -43,13 +45,19 @@ const ptComponents = {
   },
 };
 
+// ── Heading alignment ─────────────────────────────────────────────
+const alignClass = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+} as const;
+
 // ── Video widget ──────────────────────────────────────────────────
 function VideoBlock({ block }: { block: ContentBlock }) {
-  const embedUrl = toYouTubeEmbed(block.videoUrl!);
   return (
     <HeroVideoDialog
       animationStyle="from-center"
-      videoSrc={embedUrl}
+      videoSrc={toYouTubeEmbed(block.videoUrl!)}
       thumbnailSrc={block.videoThumbnail ?? "/images/default-thumbnail.png"}
       thumbnailAlt="Project video"
       className="w-full"
@@ -59,24 +67,99 @@ function VideoBlock({ block }: { block: ContentBlock }) {
 
 // ── Content block renderer ────────────────────────────────────────
 function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
-  const hasText = block.text && block.text.length > 0;
+  const hasHeading = !!block.heading;
+  const hasText = !!(block.text && block.text.length > 0);
   const hasImage = !!block.image?.url;
+  const hasImages = !!(block.images && block.images.length > 0);
   const hasVideo = !!block.videoUrl;
-  const count = [hasText, hasImage, hasVideo].filter(Boolean).length;
+  const hasThreeImages = !!(
+    block.threeImages && block.threeImages.length === 3
+  );
+  const align = block.headingAlign ?? "center";
 
-  if (count <= 1) {
-    if (hasText)
-      return (
-        <section className="max-w-7xl px-6 mx-auto py-12 md:px-20">
+  // ── 3 ảnh ngang hàng full width ─────────────────────────────────
+  if (hasThreeImages) {
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
+        {hasHeading && (
+          <h2
+            className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-10 ${alignClass[align]}`}
+          >
+            {block.heading}
+          </h2>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+          {block.threeImages!.map((img, i) => (
+            <div
+              key={i}
+              className="relative overflow-hidden rounded-2xl bg-muted group"
+              style={{ height: "clamp(220px, 28vw, 420px)" }}
+            >
+              <img
+                src={img.url}
+                alt={img.caption ?? ""}
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
+              {img.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 md:p-5">
+                  <p className="text-xs md:text-sm text-white/80 font-medium">
+                    {img.caption}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Số content chính (không tính heading)
+  // images và image đơn tính chung 1 slot
+  const contentCount = [hasText, hasImages || hasImage, hasVideo].filter(
+    Boolean,
+  ).length;
+
+  // ── Heading đơn ──────────────────────────────────────────────
+  if (hasHeading && contentCount === 0) {
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
+        <h2
+          className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino ${alignClass[align]}`}
+        >
+          {block.heading}
+        </h2>
+      </section>
+    );
+  }
+
+  // ── 1 content → full width ────────────────────────────────────
+  if (contentCount <= 1) {
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
+        {hasHeading && (
+          <h2
+            className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-8 ${alignClass[align]}`}
+          >
+            {block.heading}
+          </h2>
+        )}
+
+        {hasText && (
           <div className="max-w-3xl">
             <PortableText value={block.text!} components={ptComponents} />
           </div>
-        </section>
-      );
+        )}
 
-    if (hasImage)
-      return (
-        <section className="max-w-7xl mx-auto px-6 py-8 md:px-20">
+        {/* Gallery → Stack */}
+        {hasImages && (
+          <div className="w-full" style={{ height: "400px" }}>
+            <StackGallery images={block.images!} />
+          </div>
+        )}
+
+        {/* Ảnh đơn */}
+        {!hasImages && hasImage && (
           <figure>
             <div
               className="relative overflow-hidden rounded-2xl"
@@ -94,32 +177,37 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
               </figcaption>
             )}
           </figure>
-        </section>
-      );
+        )}
 
-    if (hasVideo)
-      return (
-        <section className="max-w-7xl mx-auto px-6 py-8 md:px-20">
+        {hasVideo && (
           <div className="w-full">
             <VideoBlock block={block} />
           </div>
-        </section>
-      );
-
-    return null;
+        )}
+      </section>
+    );
   }
 
-  const isEven = index % 2 === 0;
+  // ── 2-3 content → 2 cột, swapSides kiểm soát thứ tự ─────────
+  // Thứ tự mặc định: text → images/image → video
+  // swapSides = true → đảo ngược thứ tự
   const elements: React.ReactNode[] = [];
 
   if (hasText)
     elements.push(
-      <div key="text" className="md:w-1/2">
+      <div key="text" className="md:w-1/2 flex flex-col justify-center">
         <PortableText value={block.text!} components={ptComponents} />
       </div>,
     );
 
-  if (hasImage)
+  if (hasImages)
+    elements.push(
+      <div key="images" className="md:w-1/2" style={{ height: "340px" }}>
+        <StackGallery images={block.images!} />
+      </div>,
+    );
+
+  if (!hasImages && hasImage)
     elements.push(
       <figure key="image" className="md:w-1/2">
         <div
@@ -147,10 +235,18 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
       </div>,
     );
 
-  const ordered = isEven ? elements : [...elements].reverse();
+  // swapSides đảo thứ tự, nếu không bật thì giữ nguyên
+  const ordered = block.swapSides ? [...elements].reverse() : elements;
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
+      {hasHeading && (
+        <h2
+          className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-10 ${alignClass[align]}`}
+        >
+          {block.heading}
+        </h2>
+      )}
       <div className="flex flex-col gap-10 md:flex-row md:items-center">
         {ordered}
       </div>
@@ -158,25 +254,23 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
   );
 }
 
-// ── Page component ────────────────────────────────────────────────
+// ── Page ──────────────────────────────────────────────────────────
 export default async function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
   const project = await client.fetch<ProjectDetailData>(
     PROJECT_DETAIL_QUERY,
     { id },
     { next: { revalidate: 60 } },
   );
-
   if (!project) notFound();
 
   return (
     <main className="min-h-screen">
-      {/* ── Hero Image with overlay header ───────────────────────── */}
+      {/* Hero */}
       <section
         className="relative w-full"
         style={{ height: "clamp(360px, 55vw, 680px)" }}
@@ -188,34 +282,24 @@ export default async function ProjectDetailPage({
             className="w-full h-full object-cover"
           />
         )}
-
-        {/* Dark gradient overlay at bottom for readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/20" />
-
-        {/* Back button — top left */}
         <div className="absolute top-5 left-6 md:left-10 z-10">
           <BackButton />
         </div>
       </section>
 
-      {/* ── Title + Metadata row ─────────────────────────────────── */}
+      {/* Title + Meta */}
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-10 border-b border-border">
-        {/* Category eyebrow */}
         {project.category && project.category.length > 0 && (
           <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/40">
             {project.category.join(" · ")}
           </p>
         )}
-
-        {/* Title + Metadata ngang */}
         <div className="flex flex-row items-end gap-12">
-          {/* Title */}
           <h1 className="flex-1 text-[clamp(2.4rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-foreground font-palatino m-0">
             {project.title}
           </h1>
-
-          {/* Metadata strip — thẳng hàng dưới với title */}
-          <div className="flex-shrink-0 flex items-stretch  pl-10 pb-1">
+          <div className="flex-shrink-0 flex items-stretch pl-10 pb-1">
             {project.year && (
               <div className="pr-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1">
@@ -226,13 +310,11 @@ export default async function ProjectDetailPage({
                 </span>
               </div>
             )}
-
             {project.year &&
               project.software &&
               project.software.length > 0 && (
                 <div className="w-px bg-border self-stretch" />
               )}
-
             {project.software && project.software.length > 0 && (
               <div className="pl-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1.5">
@@ -254,7 +336,7 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
-      {/* ── Content Blocks ───────────────────────────────────────── */}
+      {/* Content Blocks */}
       {project.contentBlocks && project.contentBlocks.length > 0 && (
         <div className="divide-y divide-border/40">
           {project.contentBlocks.map((block, index) => (
@@ -263,7 +345,6 @@ export default async function ProjectDetailPage({
         </div>
       )}
 
-      {/* ── Footer ───────────────────────────────────────────────── */}
       <Footer />
     </main>
   );

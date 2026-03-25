@@ -21,10 +21,21 @@ export const PROJECT_DETAIL_QUERY = `
     "heroImage": heroImage.asset->url,
     software, category,
     contentBlocks[] {
+      heading,
+      headingAlign,
+      swapSides,
       text,
       "image": {
         "url": image.asset->url,
         "caption": image.caption
+      },
+      "images": images[]{
+        "url": asset->url,
+        "caption": caption
+      },
+      "threeImages": threeImages[]{
+        "url": asset->url,
+        "caption": caption
       },
       videoUrl,
       "videoThumbnail": videoThumbnail.asset->url
@@ -44,13 +55,24 @@ export interface ProjectCardData {
 }
 
 export interface ContentBlock {
+  heading?: string;
+  headingAlign?: "left" | "center" | "right";
   text?: any[];
   image?: {
     url: string;
     caption?: string;
   };
+  images?: {
+    url: string;
+    caption?: string;
+  }[];
+  threeImages?: {
+    url: string;
+    caption?: string;
+  }[];
   videoUrl?: string;
   videoThumbnail?: string;
+  swapSides?: boolean;
 }
 
 export interface ProjectDetailData {
@@ -67,10 +89,11 @@ export interface ProjectDetailData {
 // ── EXPERIENCE ────────────────────────────────────────────────────
 
 export const EXPERIENCES_QUERY = `
-  *[_type == "experience"] | order(date desc) {
+  *[_type == "experience"] | order(startDate desc) {
     _id,
     title,
-    date,
+    startDate,
+    endDate,
     version,
     tags,
     description,
@@ -81,7 +104,8 @@ export const EXPERIENCES_QUERY = `
 export interface ExperienceData {
   _id: string;
   title: string;
-  date: string;
+  startDate: string;
+  endDate?: string;
   version?: string;
   tags?: string[];
   description?: string;

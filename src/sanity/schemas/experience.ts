@@ -9,12 +9,19 @@ export default defineType({
   preview: {
     select: {
       title: "title",
-      subtitle: "date",
+      startDate: "startDate",
+      endDate: "endDate",
       media: "image",
     },
-    prepare({ title, subtitle, media }) {
-      const year = subtitle ? new Date(subtitle).getFullYear() : "";
-      return { title, subtitle: String(year), media };
+    prepare({ title, startDate, endDate, media }) {
+      const fmt = (d: string) => {
+        const dt = new Date(d);
+        return dt.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+      };
+      const range = startDate
+        ? `${fmt(startDate)}${endDate ? " – " + fmt(endDate) : ""}`
+        : "";
+      return { title, subtitle: range, media };
     },
   },
 
@@ -27,11 +34,19 @@ export default defineType({
     }),
 
     defineField({
-      name: "date",
-      title: "Ngày bắt đầu",
+      name: "startDate",
+      title: "Tháng/Năm bắt đầu",
       type: "date",
-      options: { dateFormat: "YYYY-MM-DD" },
+      options: { dateFormat: "YYYY-MM" },
       validation: (R) => R.required(),
+    }),
+
+    defineField({
+      name: "endDate",
+      title: "Tháng/Năm kết thúc",
+      description: "Để trống nếu đang làm việc",
+      type: "date",
+      options: { dateFormat: "YYYY-MM" },
     }),
 
     defineField({

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronLeft, ChevronRight, Star, CheckCircle2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
+import Image from "next/image";
 
 // ─── EmailJS config ─────────────────────────────────────────────────────────────
 const EMAILJS_SERVICE_ID = "service_9jb3a16";
@@ -17,24 +18,21 @@ const EMAILJS_PUBLIC_KEY = "SEFA3GnZWjYcFqLRp";
 // ─── Slides data ───────────────────────────────────────────────────────────────
 const slides = [
   {
-    image:
-      "https://truongthang.vn/wp-content/uploads/2025/04/goi-y-noi-that-phong-khach-rong-cho-nha-them-sang-va-dep-3-1.jpg",
+    image: "/images/contact-1.jpg",
     quote:
       "Thi Tu Anh stands out for her strong attention to detail and her ability to manage multiple tasks with precision and reliability. She communicates clearly with different teams and adapts quickly when working with international markets. Responsible and proactive, she approaches every project with a strong willingness to learn and continuously improve.",
     author: "Anna D",
     role: "Senior Merchandising Project Manager, Coty – Gucci Beauty",
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80",
+    image: "/images/contact-2.png",
     quote:
       "Throughout her internship, Thi Tu Anh showed great creativity and technical ability. She produced precise execution drawings and high-quality 3D models while maintaining a proactive and reliable attitude. She proved to be a dependable designer, capable of contributing effectively to real projects and collaborating smoothly within the team.",
     author: "Axelle D",
     role: "Interior Architect & Project Manager, Morning",
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
+    image: "/images/contact-3.png",
     quote:
       "Thi Tu Anh quickly demonstrated strong professional skills and a proactive mindset. She integrates rapidly into a team, communicates effectively, and approaches each project with creativity and responsibility. Her ability to understand project requirements and translate them into clear design solutions made her a valuable contributor during her time with us.",
     author: "Thu Hang B",
@@ -424,9 +422,10 @@ export default function ContactSection() {
             {/* Background images */}
             <div className="absolute inset-0 overflow-hidden">
               {slides.map((slide, i) => (
-                <img
+                <Image
                   key={i}
                   src={slide.image}
+                  fill
                   alt="background"
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
                   style={{ opacity: i === current ? 1 : 0 }}

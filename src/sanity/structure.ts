@@ -40,7 +40,7 @@ export const structure: StructureResolver = (S) =>
         .child(
           S.documentTypeList("experience")
             .title("Quản lý Experience")
-            .defaultOrdering([{ field: "date", direction: "desc" }])
+            .defaultOrdering([{ field: "startDate", direction: "desc" }])
             .child((id) =>
               S.document().documentId(id).schemaType("experience"),
             ),

@@ -17,11 +17,10 @@ export default function ExperienceSection() {
       .finally(() => setLoading(false));
   }, []);
 
-  function formatDate(dateStr: string): string {
+  function formatMonthYear(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
-      day: "numeric",
     });
   }
 
@@ -59,9 +58,12 @@ export default function ExperienceSection() {
                 <div className="flex flex-col md:flex-row gap-y-6 items-start">
                   {/* Left — date + version */}
                   <div className="md:w-48 flex-shrink-0 self-stretch">
-                    <div className="sticky top-25 pb-10">
+                      <div className="sticky top-25 pb-10">
+                      <time className="text-sm font-medium text-muted-foreground block mb-1">
+                        from {formatMonthYear(exp.startDate)}
+                      </time>
                       <time className="text-sm font-medium text-muted-foreground block mb-3">
-                        {formatDate(exp.date)}
+                        to {exp.endDate ? formatMonthYear(exp.endDate) : "Present"}
                       </time>
                       {exp.version && (
                         <div className="inline-flex relative z-10 items-center justify-center w-18 h-10 text-foreground border border-border rounded-lg text-sm font-bold">
