@@ -271,18 +271,15 @@ export default async function ProjectDetailPage({
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section
-        className="relative w-full"
-        style={{ height: "clamp(360px, 55vw, 680px)" }}
-      >
+      <section className="relative w-full">
         {project.heroImage && (
           <img
             src={project.heroImage}
             alt={project.title}
-            className="w-full h-full object-cover"
+            className="w-full h-auto max-h-[80vh] object-contain bg-muted/30"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/20" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-black/20" />
         <div className="absolute top-5 left-6 md:left-10 z-10">
           <BackButton />
         </div>
@@ -295,13 +292,13 @@ export default async function ProjectDetailPage({
             {project.category.join(" · ")}
           </p>
         )}
-        <div className="flex flex-row items-end gap-12">
-          <h1 className="flex-1 text-[clamp(2.4rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-foreground font-palatino m-0">
+        <div className="flex flex-col md:flex-row md:items-end gap-6 md:gap-12">
+          <h1 className="flex-1 text-[clamp(2rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-foreground font-palatino m-0">
             {project.title}
           </h1>
-          <div className="flex-shrink-0 flex items-stretch pl-10 pb-1">
+          <div className="flex-shrink-0 flex flex-wrap items-start md:items-stretch gap-6 md:gap-0 md:pl-10 md:pb-1">
             {project.year && (
-              <div className="pr-8">
+              <div className="md:pr-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1">
                   Year
                 </span>
@@ -313,18 +310,18 @@ export default async function ProjectDetailPage({
             {project.year &&
               project.software &&
               project.software.length > 0 && (
-                <div className="w-px bg-border self-stretch" />
+                <div className="hidden md:block w-px bg-border self-stretch" />
               )}
             {project.software && project.software.length > 0 && (
-              <div className="pl-8">
+              <div className="md:pl-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1.5">
                   Software
                 </span>
-                <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                <div className="flex flex-wrap gap-1.5">
                   {project.software.map((sw) => (
                     <span
                       key={sw}
-                      className="px-2.5 py-0.5 rounded-full text-[11px] border border-border text-foreground/60"
+                      className="px-2.5 py-0.5 rounded-full text-[11px] border border-border text-foreground/60 whitespace-nowrap"
                     >
                       {sw}
                     </span>
