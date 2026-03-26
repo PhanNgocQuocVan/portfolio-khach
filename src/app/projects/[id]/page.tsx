@@ -52,6 +52,12 @@ const alignClass = {
   right: "text-right",
 } as const;
 
+const textAlignClass = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+} as const;
+
 // ── Video widget ──────────────────────────────────────────────────
 function VideoBlock({ block }: { block: ContentBlock }) {
   return (
@@ -76,6 +82,7 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
     block.threeImages && block.threeImages.length === 3
   );
   const align = block.headingAlign ?? "center";
+  const textAlign = block.textAlign ?? "left";
 
   // ── 3 ảnh ngang hàng full width ─────────────────────────────────
   if (hasThreeImages) {
@@ -90,15 +97,11 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
           {block.threeImages!.map((img, i) => (
-            <div
-              key={i}
-              className="relative overflow-hidden rounded-2xl bg-muted group"
-              style={{ height: "clamp(220px, 28vw, 420px)" }}
-            >
+            <div key={i} className="relative overflow-hidden rounded-2xl group">
               <img
                 src={img.url}
                 alt={img.caption ?? ""}
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                className="w-full rounded-2xl transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               />
               {img.caption && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 md:p-5">
@@ -146,14 +149,14 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
         )}
 
         {hasText && (
-          <div className="max-w-3xl">
+          <div className={`max-w-3xl ${textAlignClass[textAlign]}`}>
             <PortableText value={block.text!} components={ptComponents} />
           </div>
         )}
 
         {/* Gallery → Stack */}
         {hasImages && (
-          <div className="w-full" style={{ height: "400px" }}>
+          <div className="w-full">
             <StackGallery images={block.images!} />
           </div>
         )}
@@ -161,16 +164,11 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
         {/* Ảnh đơn */}
         {!hasImages && hasImage && (
           <figure>
-            <div
-              className="relative overflow-hidden rounded-2xl"
-              style={{ height: "480px" }}
-            >
-              <img
-                src={block.image!.url}
-                alt={block.image?.caption ?? ""}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <img
+              src={block.image!.url}
+              alt={block.image?.caption ?? ""}
+              className="w-full rounded-2xl"
+            />
             {block.image?.caption && (
               <figcaption className="mt-3 text-center text-sm text-foreground/40">
                 {block.image.caption}
@@ -202,7 +200,7 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
 
   if (hasImages)
     elements.push(
-      <div key="images" className="md:w-1/2" style={{ height: "340px" }}>
+      <div key="images" className="md:w-1/2">
         <StackGallery images={block.images!} />
       </div>,
     );
@@ -210,16 +208,11 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
   if (!hasImages && hasImage)
     elements.push(
       <figure key="image" className="md:w-1/2">
-        <div
-          className="relative overflow-hidden rounded-2xl bg-muted"
-          style={{ height: "340px" }}
-        >
-          <img
-            src={block.image!.url}
-            alt={block.image?.caption ?? ""}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <img
+          src={block.image!.url}
+          alt={block.image?.caption ?? ""}
+          className="w-full rounded-2xl"
+        />
         {block.image?.caption && (
           <figcaption className="mt-2 text-sm text-foreground/40">
             {block.image.caption}
@@ -273,7 +266,7 @@ export default async function ProjectDetailPage({
       {/* Hero */}
       <section
         className="relative w-full"
-        style={{ height: "clamp(360px, 55vw, 680px)" }}
+        style={{ height: "clamp(260px, 50vw, 680px)" }}
       >
         {project.heroImage && (
           <img
@@ -289,19 +282,19 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* Title + Meta */}
-      <section className="max-w-7xl mx-auto px-6 md:px-10 py-10 border-b border-border">
+      <section className="max-w-7xl mx-auto px-6 md:px-10 py-8 md:py-14 border-b border-border">
         {project.category && project.category.length > 0 && (
-          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/40">
+          <p className="mb-4 md:mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/40">
             {project.category.join(" · ")}
           </p>
         )}
-        <div className="flex flex-row items-end gap-12">
+        <div className="flex flex-row items-end gap-6 md:gap-12 flex-wrap md:flex-nowrap">
           <h1 className="flex-1 text-[clamp(2.4rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-foreground font-palatino m-0">
             {project.title}
           </h1>
-          <div className="flex-shrink-0 flex items-stretch pl-10 pb-1">
+          <div className="flex-shrink-0 flex flex-col md:flex-row items-stretch gap-6 md:gap-8 md:pl-10 md:pb-1 w-full md:w-auto">
             {project.year && (
-              <div className="pr-8">
+              <div className="pr-0 md:pr-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1">
                   Year
                 </span>
@@ -313,14 +306,14 @@ export default async function ProjectDetailPage({
             {project.year &&
               project.software &&
               project.software.length > 0 && (
-                <div className="w-px bg-border self-stretch" />
+                <div className="hidden md:block w-px bg-border self-stretch" />
               )}
             {project.software && project.software.length > 0 && (
-              <div className="pl-8">
+              <div className="pl-0 md:pl-8">
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-foreground/40 mb-1.5">
                   Software
                 </span>
-                <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                <div className="flex flex-wrap gap-1.5 w-full md:max-w-[200px]">
                   {project.software.map((sw) => (
                     <span
                       key={sw}

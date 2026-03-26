@@ -83,6 +83,25 @@ export default defineType({
         !!(parent?.threeImages && parent.threeImages.length === 3),
     }),
 
+    defineField({
+      name: "textAlign",
+      title: "Căn text",
+      type: "string",
+      options: {
+        list: [
+          { title: "← Trái", value: "left" },
+          { title: "— Giữa", value: "center" },
+          { title: "→ Phải", value: "right" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      initialValue: "left",
+      hidden: ({ parent }) =>
+        !parent?.text || parent?.text.length === 0 ||
+        !!(parent?.threeImages && parent.threeImages.length === 3),
+    }),
+
     // ── SINGLE IMAGE ─────────────────────────────────────────────
     defineField({
       name: "image",

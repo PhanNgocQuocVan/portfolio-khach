@@ -25,6 +25,7 @@ export const PROJECT_DETAIL_QUERY = `
       headingAlign,
       swapSides,
       text,
+      textAlign,
       "image": {
         "url": image.asset->url,
         "caption": image.caption
@@ -58,6 +59,7 @@ export interface ContentBlock {
   heading?: string;
   headingAlign?: "left" | "center" | "right";
   text?: any[];
+  textAlign?: "left" | "center" | "right";
   image?: {
     url: string;
     caption?: string;

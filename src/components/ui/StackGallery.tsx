@@ -12,7 +12,7 @@ export default function StackGallery({ images }: StackGalleryProps) {
       key={i}
       src={img.url}
       alt={img.caption ?? `image-${i + 1}`}
-      className="w-full h-full object-cover pointer-events-none"
+      className="h-full pointer-events-none rounded-2xl"
     />
   ));
 
@@ -22,7 +22,6 @@ export default function StackGallery({ images }: StackGalleryProps) {
       <Stack
         cards={cards}
         sendToBackOnClick
-        autoplay
         autoplayDelay={3000}
         pauseOnHover
         mobileClickOnly

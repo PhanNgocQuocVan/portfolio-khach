@@ -1,5 +1,10 @@
-import { motion, useMotionValue, useTransform, type PanInfo } from 'motion/react';
-import { useState, useEffect } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  type PanInfo,
+} from "motion/react";
+import { useState, useEffect } from "react";
 
 interface CardRotateProps {
   children: React.ReactNode;
@@ -8,14 +13,25 @@ interface CardRotateProps {
   disableDrag?: boolean;
 }
 
-function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }: CardRotateProps) {
+function CardRotate({
+  children,
+  onSendToBack,
+  sensitivity,
+  disableDrag = false,
+}: CardRotateProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [60, -60]);
   const rotateY = useTransform(x, [-100, 100], [-60, 60]);
 
-  function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-    if (Math.abs(info.offset.x) > sensitivity || Math.abs(info.offset.y) > sensitivity) {
+  function handleDragEnd(
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) {
+    if (
+      Math.abs(info.offset.x) > sensitivity ||
+      Math.abs(info.offset.y) > sensitivity
+    ) {
       onSendToBack();
     } else {
       x.set(0);
@@ -25,7 +41,10 @@ function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }
 
   if (disableDrag) {
     return (
-      <motion.div className="absolute inset-0 cursor-pointer" style={{ x: 0, y: 0 }}>
+      <motion.div
+        className="absolute inset-0 cursor-pointer"
+        style={{ x: 0, y: 0 }}
+      >
         {children}
       </motion.div>
     );
@@ -38,7 +57,7 @@ function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }
       drag
       dragConstraints={{ top: 0, right: 0, bottom: 0, left: 0 }}
       dragElastic={0.6}
-      whileTap={{ cursor: 'grabbing' }}
+      whileTap={{ cursor: "grabbing" }}
       onDragEnd={handleDragEnd}
     >
       {children}
@@ -69,7 +88,7 @@ export default function Stack({
   autoplayDelay = 3000,
   pauseOnHover = false,
   mobileClickOnly = false,
-  mobileBreakpoint = 768
+  mobileBreakpoint = 768,
 }: StackProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -80,14 +99,16 @@ export default function Stack({
     };
 
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, [mobileBreakpoint]);
 
   const shouldDisableDrag = mobileClickOnly && isMobile;
   const shouldEnableClick = sendToBackOnClick || shouldDisableDrag;
 
-  const [stack, setStack] = useState<{ id: number; content: React.ReactNode }[]>(() => {
+  const [stack, setStack] = useState<
+    { id: number; content: React.ReactNode }[]
+  >(() => {
     if (cards.length) {
       return cards.map((content, index) => ({ id: index + 1, content }));
     } else {
@@ -98,9 +119,9 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format"
               alt="card-1"
-              className="w-full h-full object-cover pointer-events-none"
+              className="h-full object-contain pointer-events-none"
             />
-          )
+          ),
         },
         {
           id: 2,
@@ -108,9 +129,9 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format"
               alt="card-2"
-              className="w-full h-full object-cover pointer-events-none"
+              className="h-full object-contain pointer-events-none"
             />
-          )
+          ),
         },
         {
           id: 3,
@@ -118,9 +139,9 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format"
               alt="card-3"
-              className="w-full h-full object-cover pointer-events-none"
+              className="h-full object-contain pointer-events-none"
             />
-          )
+          ),
         },
         {
           id: 4,
@@ -128,10 +149,10 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format"
               alt="card-4"
-              className="w-full h-full object-cover pointer-events-none"
+              className="h-full object-contain pointer-events-none"
             />
-          )
-        }
+          ),
+        },
       ];
     }
   });
@@ -143,9 +164,9 @@ export default function Stack({
   }, [cards]);
 
   const sendToBack = (id: number) => {
-    setStack(prev => {
+    setStack((prev) => {
       const newStack = [...prev];
-      const index = newStack.findIndex(card => card.id === id);
+      const index = newStack.findIndex((card) => card.id === id);
       const [card] = newStack.splice(index, 1);
       newStack.unshift(card);
       return newStack;
@@ -167,7 +188,7 @@ export default function Stack({
     <div
       className="relative w-full h-full"
       style={{
-        perspective: 600
+        perspective: 600,
       }}
       onMouseEnter={() => pauseOnHover && setIsPaused(true)}
       onMouseLeave={() => pauseOnHover && setIsPaused(false)}
@@ -182,18 +203,18 @@ export default function Stack({
             disableDrag={shouldDisableDrag}
           >
             <motion.div
-              className="rounded-2xl overflow-hidden w-full h-full"
+              className="rounded-2xl overflow-hidden w-full h-full flex justify-center"
               onClick={() => shouldEnableClick && sendToBack(card.id)}
               animate={{
                 rotateZ: (stack.length - index - 1) * 4 + randomRotate,
                 scale: 1 + index * 0.06 - stack.length * 0.06,
-                transformOrigin: '90% 90%'
+                transformOrigin: "90% 90%",
               }}
               initial={false}
               transition={{
-                type: 'spring',
+                type: "spring",
                 stiffness: animationConfig.stiffness,
-                damping: animationConfig.damping
+                damping: animationConfig.damping,
               }}
             >
               {card.content}
