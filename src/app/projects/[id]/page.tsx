@@ -272,10 +272,10 @@ export default async function ProjectDetailPage({
           <img
             src={project.heroImage}
             alt={project.title}
-            className="w-full h-full object-cover"
+            className="w-full h-auto max-h-[80vh] object-contain bg-muted/30"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/20" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-black/20" />
         <div className="absolute top-5 left-6 md:left-10 z-10">
           <BackButton />
         </div>
@@ -317,7 +317,7 @@ export default async function ProjectDetailPage({
                   {project.software.map((sw) => (
                     <span
                       key={sw}
-                      className="px-2.5 py-0.5 rounded-full text-[11px] border border-border text-foreground/60"
+                      className="px-2.5 py-0.5 rounded-full text-[11px] border border-border text-foreground/60 whitespace-nowrap"
                     >
                       {sw}
                     </span>
