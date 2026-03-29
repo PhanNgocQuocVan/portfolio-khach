@@ -53,9 +53,9 @@ const alignClass = {
 } as const;
 
 const textAlignClass = {
-  left: "text-left",
-  center: "text-center",
-  right: "text-right",
+  left: "text-left mr-auto",
+  center: "text-center mx-auto",
+  right: "text-right ml-auto",
 } as const;
 
 // ── Video widget ──────────────────────────────────────────────────
@@ -193,7 +193,7 @@ function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
 
   if (hasText)
     elements.push(
-      <div key="text" className="md:w-1/2 flex flex-col justify-center">
+      <div key="text" className={`md:w-1/2 flex flex-col justify-center ${textAlignClass[textAlign]}`}>
         <PortableText value={block.text!} components={ptComponents} />
       </div>,
     );
@@ -272,10 +272,10 @@ export default async function ProjectDetailPage({
           <img
             src={project.heroImage}
             alt={project.title}
-            className="w-full h-auto max-h-[80vh] object-contain bg-muted/30"
+            className="w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-black/20" />
         <div className="absolute top-5 left-6 md:left-10 z-10">
           <BackButton />
         </div>

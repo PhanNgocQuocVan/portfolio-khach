@@ -152,7 +152,7 @@ export default function HeroSection() {
               className="object-cover"
               quality={100}
               style={{
-                objectPosition: "60% 30px",
+                objectPosition: "60% 40px",
                 transform: "scale(2)", // 1.2 = phóng to 120%, 0.8 = thu nhỏ
                 transformOrigin: "center 30%", // điểm neo khi scale
               }}
