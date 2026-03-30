@@ -101,18 +101,18 @@ export function ImageComparison({
         className,
       )}
     >
-      {/* After Image (Background) */}
+      {/* After Image (Background) - positioned behind */}
       {/* biome-ignore lint/performance/noImgElement: next/image causes ESM issues with fumadocs-mdx */}
       <img
         src={afterImage}
         alt={afterLabel}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 w-full h-full"
         draggable={false}
       />
 
-      {/* Before Image (Clipped) */}
+      {/* Before Image (In flow - defines container size, clipped) */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="relative z-1"
         style={{
           clipPath:
             orientation === "horizontal"
@@ -124,7 +124,7 @@ export function ImageComparison({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className="h-full w-full object-cover"
+          className="block max-w-full h-auto"
           draggable={false}
         />
       </div>
@@ -176,7 +176,7 @@ export function ImageComparison({
         <>
           <div
             className={cn(
-              "absolute rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm",
+              "absolute z-20 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm",
               orientation === "horizontal" ? "top-3 left-3" : "top-3 left-3",
             )}
           >
@@ -184,7 +184,7 @@ export function ImageComparison({
           </div>
           <div
             className={cn(
-              "absolute rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm",
+              "absolute z-20 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm",
               orientation === "horizontal"
                 ? "top-3 right-3"
                 : "bottom-3 left-3",
@@ -242,18 +242,18 @@ export function ImageComparisonHover({
       role="button"
       tabIndex={0}
     >
-      {/* After Image */}
+      {/* After Image - positioned behind */}
       {/* biome-ignore lint/performance/noImgElement: next/image causes ESM issues with fumadocs-mdx */}
       <img
         src={afterImage}
         alt={afterLabel}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 w-full h-full"
         draggable={false}
       />
 
-      {/* Before Image */}
+      {/* Before Image - in flow (defines size), clipped */}
       <motion.div
-        className="absolute inset-0 overflow-hidden"
+        className="relative z-1"
         animate={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         transition={{ type: "tween", duration: 0.1 }}
       >
@@ -261,7 +261,7 @@ export function ImageComparisonHover({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className="h-full w-full object-cover"
+          className="block max-w-full h-auto"
           draggable={false}
         />
       </motion.div>
@@ -277,10 +277,10 @@ export function ImageComparisonHover({
       {/* Labels */}
       {showLabels && (
         <>
-          <div className="absolute top-3 left-3 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm">
+          <div className="absolute z-20 top-3 left-3 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm">
             {beforeLabel}
           </div>
-          <div className="absolute top-3 right-3 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm">
+          <div className="absolute z-20 top-3 right-3 rounded-md bg-background/80 px-2 py-1 font-medium text-xs backdrop-blur-sm">
             {afterLabel}
           </div>
         </>
@@ -370,18 +370,18 @@ export function ImageComparisonFade({
       role="button"
       tabIndex={0}
     >
-      {/* After Image */}
+      {/* After Image - positioned behind */}
       {/* biome-ignore lint/performance/noImgElement: next/image causes ESM issues with fumadocs-mdx */}
       <img
         src={afterImage}
         alt={afterLabel}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 w-full h-full"
         draggable={false}
       />
 
-      {/* Before Image with fade */}
+      {/* Before Image - in flow (defines size), with fade */}
       <motion.div
-        className="absolute inset-0"
+        className="relative z-1"
         animate={{ opacity: showBefore ? 1 : 0 }}
         transition={{ duration: 0.5 }}
       >
@@ -389,7 +389,7 @@ export function ImageComparisonFade({
         <img
           src={beforeImage}
           alt={beforeLabel}
-          className="h-full w-full object-cover"
+          className="block max-w-full h-auto"
           draggable={false}
         />
       </motion.div>
@@ -397,7 +397,7 @@ export function ImageComparisonFade({
       {/* Label */}
       {showLabels && (
         <motion.div
-          className="absolute top-3 left-1/2 -translate-x-1/2 rounded-md bg-background/80 px-3 py-1.5 font-medium text-sm backdrop-blur-sm"
+          className="absolute z-20 top-3 left-1/2 -translate-x-1/2 rounded-md bg-background/80 px-3 py-1.5 font-medium text-sm backdrop-blur-sm"
           key={showBefore ? "before" : "after"}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -408,7 +408,7 @@ export function ImageComparisonFade({
       )}
 
       {/* Click hint */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-background/80 px-2 py-1 text-muted-foreground text-xs opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+      <div className="absolute z-20 bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-background/80 px-2 py-1 text-muted-foreground text-xs opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
         Click to toggle
       </div>
     </div>

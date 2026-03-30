@@ -21,12 +21,12 @@ export default function BeforeAfterSlotClient({
     afterImage: slot.afterImage,
     beforeLabel: slot.beforeLabel ?? "Phác thảo",
     afterLabel: slot.afterLabel ?? "Hoàn thiện",
-    className: "w-full h-full",
+    className: "max-w-full mx-auto",
     showLabels: true,
   };
 
   return (
-    <div style={{ height: "clamp(400px, 50vw, 600px)" }}>
+    <>
       {slot.variant === "hover" ? (
         <ImageComparisonHover {...commonProps} />
       ) : slot.variant === "fade" ? (
@@ -38,6 +38,6 @@ export default function BeforeAfterSlotClient({
           orientation="horizontal"
         />
       )}
-    </div>
+    </>
   );
 }
