@@ -42,8 +42,8 @@ function CardRotate({
   if (disableDrag) {
     return (
       <motion.div
-        className="absolute inset-0 cursor-pointer"
-        style={{ x: 0, y: 0 }}
+        className="cursor-pointer"
+        style={{ gridArea: "1/1", x: 0, y: 0 }}
       >
         {children}
       </motion.div>
@@ -52,8 +52,8 @@ function CardRotate({
 
   return (
     <motion.div
-      className="absolute inset-0 cursor-grab"
-      style={{ x, y, rotateX, rotateY }}
+      className="cursor-grab"
+      style={{ gridArea: "1/1", x, y, rotateX, rotateY }}
       drag
       dragConstraints={{ top: 0, right: 0, bottom: 0, left: 0 }}
       dragElastic={0.6}
@@ -119,7 +119,7 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format"
               alt="card-1"
-              className="h-full object-contain pointer-events-none"
+              className="max-w-full w-auto object-contain pointer-events-none"
             />
           ),
         },
@@ -129,7 +129,7 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format"
               alt="card-2"
-              className="h-full object-contain pointer-events-none"
+              className="max-w-full w-auto object-contain pointer-events-none"
             />
           ),
         },
@@ -139,7 +139,7 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format"
               alt="card-3"
-              className="h-full object-contain pointer-events-none"
+              className="max-w-full w-auto object-contain pointer-events-none"
             />
           ),
         },
@@ -149,7 +149,7 @@ export default function Stack({
             <img
               src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format"
               alt="card-4"
-              className="h-full object-contain pointer-events-none"
+              className="max-w-full w-auto object-contain pointer-events-none"
             />
           ),
         },
@@ -186,7 +186,7 @@ export default function Stack({
 
   return (
     <div
-      className="relative w-full h-full"
+      className="grid place-items-center"
       style={{
         perspective: 600,
       }}
@@ -203,7 +203,7 @@ export default function Stack({
             disableDrag={shouldDisableDrag}
           >
             <motion.div
-              className="rounded-2xl overflow-hidden w-full h-full flex justify-center"
+              className="rounded-2xl"
               onClick={() => shouldEnableClick && sendToBack(card.id)}
               animate={{
                 rotateZ: (stack.length - index - 1) * 4 + randomRotate,

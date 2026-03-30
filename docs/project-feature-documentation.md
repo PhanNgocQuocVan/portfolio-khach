@@ -1,6 +1,8 @@
 # Tài liệu tính năng Project — Portfolio Tu Anh
 
 > **Mục đích:** Mô tả chi tiết toàn bộ luồng logic, schema, thuật toán render, và UI của tính năng **Project** — từ Sanity Studio (CMS) đến frontend (Next.js). Dành cho AI hoặc developer khác nghiên cứu.
+>
+> **Kiến trúc:** Polymorphic Slots (v2) — mỗi content block chứa mảng `slots[]` linh hoạt, mỗi slot có `_type` riêng.
 
 ---
 
@@ -9,15 +11,16 @@
 1. [Tổng quan kiến trúc](#1-tổng-quan-kiến-trúc)
 2. [Danh sách file liên quan](#2-danh-sách-file-liên-quan)
 3. [Sanity Schema — Project](#3-sanity-schema--project)
-4. [Sanity Schema — ContentBlock](#4-sanity-schema--contentblock)
-5. [Sanity Studio Structure](#5-sanity-studio-structure)
-6. [GROQ Queries & TypeScript Interfaces](#6-groq-queries--typescript-interfaces)
-7. [Trang chủ — ProjectsSection (danh sách project)](#7-trang-chủ--projectssection-danh-sách-project)
-8. [ProjectCard — Component hiển thị card](#8-projectcard--component-hiển-thị-card)
-9. [Project Detail Page — Thuật toán render](#9-project-detail-page--thuật-toán-render)
-10. [Các component phụ trợ](#10-các-component-phụ-trợ)
-11. [Luồng người dùng trên Studio](#11-luồng-người-dùng-trên-studio)
-12. [Các lỗi đã fix & lưu ý](#12-các-lỗi-đã-fix--lưu-ý)
+4. [Sanity Schema — ContentBlock (Polymorphic Slots)](#4-sanity-schema--contentblock-polymorphic-slots)
+5. [Sanity Schema — 5 Slot Types](#5-sanity-schema--5-slot-types)
+6. [Sanity Studio Structure & Validation](#6-sanity-studio-structure--validation)
+7. [GROQ Queries & TypeScript Interfaces](#7-groq-queries--typescript-interfaces)
+8. [Trang chủ — ProjectsSection (danh sách project)](#8-trang-chủ--projectssection-danh-sách-project)
+9. [ProjectCard — Component hiển thị card](#9-projectcard--component-hiển-thị-card)
+10. [Project Detail Page — Thuật toán render](#10-project-detail-page--thuật-toán-render)
+11. [Các component phụ trợ](#11-các-component-phụ-trợ)
+12. [Luồng người dùng trên Studio](#12-luồng-người-dùng-trên-studio)
+13. [Lưu ý quan trọng](#13-lưu-ý-quan-trọng)
 
 ---
 
@@ -28,9 +31,14 @@
 │                   SANITY STUDIO (CMS)                │
 │                                                      │
 │  ┌─────────────┐     ┌───────────────────────────┐   │
-│  │   project    │────►│      contentBlock (array) │   │
-│  │  (document)  │     │         (object)          │   │
-│  └─────────────┘     └───────────────────────────┘   │
+│  │   project    │────►│  contentBlock              │   │
+│  │  (document)  │     │  └── slots[] (polymorphic) │   │
+│  └─────────────┘     │       ├── textSlot          │   │
+│                      │       ├── imageSlot         │   │
+│                      │       ├── gallerySlot       │   │
+│                      │       ├── videoSlot         │   │
+│                      │       └── beforeAfterSlot   │   │
+│                      └───────────────────────────┘   │
 └──────────────┬───────────────────────────────────────┘
                │ GROQ Query (fetch via API)
                ▼
@@ -43,15 +51,15 @@
 │  │                  │    │                        │  │
 │  │  ┌────────────┐  │    │  Hero → Title/Meta     │  │
 │  │  │ProjectCard │  │    │  → RenderBlock (loop)  │  │
-│  │  │ (mỗi card) │  │    │  → Footer              │  │
-│  │  └────────────┘  │    └────────────────────────┘  │
-│  └──────────────────┘                                │
+│  │  │ (mỗi card) │  │    │     → RenderSlot       │  │
+│  │  └────────────┘  │    │  → Footer              │  │
+│  └──────────────────┘    └────────────────────────┘  │
 └──────────────────────────────────────────────────────┘
 ```
 
 **Tech stack:**
 - **CMS:** Sanity v3 (hosted)
-- **Frontend:** Next.js (App Router, Server Components)
+- **Frontend:** Next.js 15 (App Router, Server Components)
 - **Styling:** Tailwind CSS
 - **Rich Text:** `@portabletext/react`
 - **Animation:** Framer Motion (`motion/react`)
@@ -64,28 +72,32 @@
 
 | File | Vai trò |
 |------|---------|
-| `src/sanity/schemas/project.ts` | Schema document "project" — định nghĩa fields cho card + detail |
-| `src/sanity/schemas/contentBlock.ts` | Schema object "contentBlock" — block nội dung linh hoạt |
-| `src/sanity/schemaTypes/index.ts` | Đăng ký tất cả schema vào Sanity |
+| `src/sanity/schemas/project.ts` | Schema document "project" — fields cho card + detail |
+| `src/sanity/schemas/contentBlock.ts` | Schema object "contentBlock" — heading + slots[] + swapSides + validation |
+| `src/sanity/schemas/slots/textSlot.ts` | Schema object "textSlot" — Portable Text + align |
+| `src/sanity/schemas/slots/imageSlot.ts` | Schema object "imageSlot" — image + caption |
+| `src/sanity/schemas/slots/gallerySlot.ts` | Schema object "gallerySlot" — array of images |
+| `src/sanity/schemas/slots/videoSlot.ts` | Schema object "videoSlot" — YouTube URL + thumbnail |
+| `src/sanity/schemas/slots/beforeAfterSlot.ts` | Schema object "beforeAfterSlot" — exclusive comparison slot |
+| `src/sanity/schemaTypes/index.ts` | Đăng ký tất cả schema (5 slot types + contentBlock + project + ...) |
 | `src/sanity/schemaTypes/queries.ts` | GROQ queries + TypeScript interfaces |
 | `src/sanity/structure.ts` | Cấu trúc menu Sanity Studio |
 | `src/sanity/lib/client.ts` | Khởi tạo Sanity client |
-| `src/sanity/lib/image.ts` | Utility tạo URL ảnh từ Sanity |
-| `src/sanity/env.ts` | Biến môi trường Sanity |
 
 ### Frontend (Rendering)
 
 | File | Vai trò |
 |------|---------|
-| `src/app/projects/[id]/page.tsx` | **Trang chi tiết project** — Server Component, render content blocks |
+| `src/app/projects/[id]/page.tsx` | **Trang chi tiết project** — Server Component, RenderBlock + RenderSlot |
 | `src/app/projects/[id]/not-found.tsx` | Trang 404 khi project không tồn tại |
-| `src/app/(home)/component/ProjectsSection.tsx` | Section hiển thị grid card trên trang chủ + filter |
-| `src/components/ui/ProjectCard.tsx` | Component card project (thumbnail, video hover, tags) |
+| `src/app/(home)/component/ProjectsSection.tsx` | Section grid card trên trang chủ + filter |
+| `src/components/ui/ProjectCard.tsx` | Card project (thumbnail, video hover, tags) |
 | `src/components/ui/StackGallery.tsx` | Gallery ảnh dạng "stack cards" xoay |
 | `src/components/ui/hero-video-dialog.tsx` | Modal phát video YouTube |
+| `src/components/ui/image-comparison.tsx` | 6 variants: Slider, Hover, Fade, Split, Swipe, Lens |
+| `src/components/ui/BeforeAfterSlotClient.tsx` | Client component wrapper cho image comparison |
 | `src/components/layout/back-button.tsx` | Nút quay lại |
 | `src/lib/youtube.ts` | Utility chuyển đổi URL YouTube sang embed |
-| `src/types/project.ts` | Interface cũ (không còn sử dụng chính) |
 
 ---
 
@@ -97,127 +109,165 @@ Schema document `project` được chia làm **2 group** trong Studio:
 
 ### Group 1: 📋 Thông tin card (`info`)
 
-Các field hiển thị trên **ProjectCard** ở trang chủ:
-
 | Field | Type | Bắt buộc | Mô tả |
 |-------|------|----------|-------|
 | `title` | `string` | ✅ | Tên project |
-| `year` | `string` | ❌ | Năm thực hiện (hiện trên card & detail) |
-| `description` | `text` (2 rows) | ❌ | Mô tả ngắn, hiện trên card (tối đa 2 dòng) |
+| `year` | `string` | ❌ | Năm thực hiện |
+| `description` | `text` (2 rows) | ❌ | Mô tả ngắn (tối đa 2 dòng trên card) |
 | `thumbnail` | `image` (hotspot) | ❌ | Ảnh thumbnail hiện trên card |
-| `previewVideo` | `file` (mp4/webm) | ❌ | Video ngắn auto-play khi hover card (desktop only) |
+| `previewVideo` | `file` (mp4/webm) | ❌ | Video ngắn auto-play khi hover (desktop only) |
 | `software` | `array of string` | ❌ | Phần mềm sử dụng — dùng để filter |
 | `category` | `array of string` | ❌ | Danh mục — dùng để filter |
 
-**Software options (grid layout):**
-```
-Adobe CC, AutoCAD, SketchUp, 3DsMax, Vray, TwinMotion, Rhino, Archicad, Revit
-```
+**Software options (grid):** Adobe CC, AutoCAD, SketchUp, 3DsMax, Vray, TwinMotion, Rhino, Archicad, Revit
 
-**Category options (list layout):**
-```
-Retail, Set Design, Hospitality, Objects
-```
+**Category options (list):** Retail, Set Design, Hospitality, Objects
 
 ### Group 2: 📄 Trang chi tiết (`detail`)
 
 | Field | Type | Mô tả |
 |-------|------|-------|
 | `heroImage` | `image` (hotspot) | Ảnh hero lớn đầu trang detail |
-| `contentBlocks` | `array of contentBlock` | Mảng các block nội dung linh hoạt |
-
-### Preview config
-
-Trên Studio, mỗi project hiển thị:
-- **Title:** `title`
-- **Subtitle:** `year`
-- **Media:** `thumbnail`
+| `contentBlocks` | `array of contentBlock` | Mảng các block nội dung (Polymorphic Slots) |
 
 ---
 
-## 4. Sanity Schema — ContentBlock
+## 4. Sanity Schema — ContentBlock (Polymorphic Slots)
 
 **File:** `src/sanity/schemas/contentBlock.ts`
 
-Đây là **trái tim** của trang chi tiết. Mỗi contentBlock là một **object** có thể chứa bất kỳ tổ hợp nội dung nào.
-
-### Tất cả fields
-
-| Field | Type | Mô tả | Điều kiện ẩn |
-|-------|------|-------|-------------|
-| `heading` | `string` | Tiêu đề lớn | Không bao giờ ẩn |
-| `headingAlign` | `string` (radio: left/center/right) | Căn heading | Ẩn khi không có heading |
-| `text` | `array of block` (Portable Text) | Nội dung văn bản rich text | Ẩn khi có threeImages |
-| `textAlign` | `string` (radio: left/center/right) | Căn text | Ẩn khi không có text hoặc có threeImages |
-| `image` | `image` + caption | Hình ảnh đơn | Ẩn khi có threeImages |
-| `images` | `array of image` + caption | Gallery nhiều ảnh | Ẩn khi có threeImages |
-| `videoUrl` | `url` | URL YouTube | Ẩn khi có threeImages |
-| `videoThumbnail` | `image` | Thumbnail cho video | Ẩn khi không có videoUrl hoặc có threeImages |
-| `threeImages` | `array of image` (đúng 3) | 3 ảnh ngang hàng full width | Ẩn khi đã có text/image/images/videoUrl |
-| `swapSides` | `boolean` | Đổi thứ tự trái/phải | Ẩn khi threeImages hoặc ít hơn 2 loại content |
-
-### Portable Text config (cho field `text`)
+Mỗi contentBlock có cấu trúc:
 
 ```
-Styles:   Normal, H2, H3, Blockquote
-Marks:    Bold (strong), Italic (em)
+ContentBlock
+├── heading?          (string)  — tiêu đề lớn, tùy chọn
+├── headingAlign?     (left | center | right)  — ẩn khi không có heading
+├── slots[]           — MẢNG polymorphic, mỗi slot có _type riêng
+│    ├── textSlot
+│    ├── imageSlot
+│    ├── gallerySlot
+│    ├── videoSlot
+│    └── beforeAfterSlot  ← EXCLUSIVE: phải là slot duy nhất
+└── swapSides?        (boolean) — ẩn khi không phải đúng 2 normal slots
 ```
 
-### Logic ẩn/hiện fields (quan trọng!)
+### Validation Rules (trên Studio)
 
-ContentBlock được thiết kế theo nguyên tắc **"threeImages là mode đặc biệt"**:
+| Rule | Thông báo lỗi |
+|------|---------------|
+| Tối đa 3 slot per block | "Tối đa 3 slot mỗi block (đang có N). Vui lòng tạo block mới." |
+| Before/After phải là slot duy nhất | "🔄 Before/After phải là slot duy nhất trong block. Vui lòng xóa các slot khác." |
 
-```
-NẾU có threeImages (đúng 3 ảnh):
-  → ẨN: text, textAlign, image, images, videoUrl, videoThumbnail
-  → CHỈ HIỆN: heading, headingAlign, threeImages
+### Layout tự động theo số lượng slots
 
-NẾU có bất kỳ text/image/images/videoUrl:
-  → ẨN: threeImages
+| Số normal slots | Layout trên web |
+|-----------------|----------------|
+| 0 | Heading đơn (full width) |
+| 1 | Full width (100%) |
+| 2 | 2 cột (50% / 50%), có toggle swapSides |
+| 3 | 3 cột (33% / 33% / 33%) |
+| beforeAfterSlot | Full width exclusive |
 
-swapSides CHỈ HIỆN KHI:
-  → Không có threeImages
-  → VÀ có ít nhất 2 loại content (vd: text + image, text + video,...)
-```
+### Preview trên Studio
 
-### Preview config
-
-Mỗi contentBlock hiện preview trên Studio dạng:
-```
-📌 "Heading text" + 📝 Text + 🖼 Hình + 🖼×5 Gallery + 🎬 Video + 🖼×3 Row
-```
-Nếu block trống: `"Block trống"`
-
-### Validation
-
-- `threeImages`: Custom validation — nếu có ảnh thì phải đúng 3 ảnh, nếu không sẽ báo lỗi "Phải thêm đúng 3 ảnh"
+Hiện dạng: `📌 "Heading" · 📝 Text · 🖼 Hình · 🖼×5 Gallery · 🎬 Video · 🔄 Before/After`
 
 ---
 
-## 5. Sanity Studio Structure
+## 5. Sanity Schema — 5 Slot Types
+
+### 5.1 textSlot (`📝 Văn bản`)
+
+**File:** `src/sanity/schemas/slots/textSlot.ts`
+
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `content` | `array of block` (Portable Text) | Rich text: Normal, H2, H3, Blockquote, Bold, Italic |
+| `align` | `string` (radio: left/center/right) | Căn lề text, default: "left" |
+
+**Preview:** Hiện 40 ký tự đầu tiên của text content.
+
+### 5.2 imageSlot (`🖼 Hình ảnh đơn`)
+
+**File:** `src/sanity/schemas/slots/imageSlot.ts`
+
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `image` | `image` (hotspot) | Hình ảnh |
+| `caption` | `string` | Caption tùy chọn |
+
+### 5.3 gallerySlot (`🖼 Gallery`)
+
+**File:** `src/sanity/schemas/slots/gallerySlot.ts`
+
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `images` | `array of image` (mỗi ảnh có caption) | Nhiều ảnh, hiện dạng StackGallery |
+
+**Preview:** Hiện số lượng ảnh: `🖼 Gallery (5 ảnh)`
+
+### 5.4 videoSlot (`🎬 Video YouTube`)
+
+**File:** `src/sanity/schemas/slots/videoSlot.ts`
+
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `url` | `url` | YouTube URL (bất kỳ dạng: watch?v=, youtu.be/, shorts/) |
+| `thumbnail` | `image` (hotspot) | Ảnh preview tùy chọn |
+
+### 5.5 beforeAfterSlot (`🔄 Before / After`) — EXCLUSIVE
+
+**File:** `src/sanity/schemas/slots/beforeAfterSlot.ts`
+
+| Field | Type | Mô tả |
+|-------|------|-------|
+| `beforeImage` | `image` (hotspot, bắt buộc) | Ảnh TRƯỚC (phác thảo) |
+| `afterImage` | `image` (hotspot, bắt buộc) | Ảnh SAU (hoàn thiện) |
+| `beforeLabel` | `string` (default: "Phác thảo") | Label ảnh trước |
+| `afterLabel` | `string` (default: "Hoàn thiện") | Label ảnh sau |
+| `variant` | `string` (radio) | Kiểu hiệu ứng: slider / hover / fade |
+
+**Variant options:**
+- **slider** (default) — Kéo thanh trượt, dùng `ImageComparison`
+- **hover** — Theo chuột, dùng `ImageComparisonHover`
+- **fade** — Click đổi ảnh, dùng `ImageComparisonFade`
+
+**⚠️ EXCLUSIVE:** Khi có beforeAfterSlot, block chỉ render slot này, bỏ qua mọi slot khác. Validation trên Studio cũng ngăn thêm slot khác.
+
+---
+
+## 6. Sanity Studio Structure & Validation
 
 **File:** `src/sanity/structure.ts`
 
-Menu Studio được tổ chức:
 ```
 📄 Quản lý CV (singleton)
 ──────────────────────
-🗂️ Quản lý Projects → danh sách projects (sắp xếp theo year DESC)
+🗂️ Quản lý Projects → danh sách projects (sắp xếp year DESC)
 ──────────────────────
 💼 Quản lý Experience
 ──────────────────────
 🎓 Quản lý Education & Certification
-──────────────────────
-(các document type khác tự động)
 ```
 
-Khi click "Quản lý Projects":
-1. Hiện danh sách tất cả project, sắp xếp theo `year` giảm dần
-2. Click vào 1 project → mở form edit với 2 tab: **📋 Thông tin card** và **📄 Trang chi tiết**
+### Schema Registration Order
+
+**File:** `src/sanity/schemaTypes/index.ts`
+
+Slot types PHẢI được đăng ký TRƯỚC contentBlock:
+
+```typescript
+types: [
+  cvType,
+  textSlot, imageSlot, gallerySlot, videoSlot, beforeAfterSlot,  // slots trước
+  contentBlock,                                                    // contentBlock sau
+  project, experience, education,
+]
+```
 
 ---
 
-## 6. GROQ Queries & TypeScript Interfaces
+## 7. GROQ Queries & TypeScript Interfaces
 
 **File:** `src/sanity/schemaTypes/queries.ts`
 
@@ -232,21 +282,6 @@ Khi click "Quản lý Projects":
 }
 ```
 
-**Trả về:** Array các `ProjectCardData`
-
-```typescript
-interface ProjectCardData {
-  _id: string;
-  title: string;
-  year?: string;
-  description?: string;
-  thumbnail?: string;      // URL ảnh
-  previewVideo?: string;    // URL video file
-  software?: string[];
-  category?: string[];
-}
-```
-
 ### Query 2: PROJECT_DETAIL_QUERY (trang chi tiết)
 
 ```groq
@@ -256,47 +291,60 @@ interface ProjectCardData {
   software, category,
   contentBlocks[] {
     heading, headingAlign, swapSides,
-    text, textAlign,
-    "image": { "url": image.asset->url, "caption": image.caption },
-    "images": images[]{ "url": asset->url, "caption": caption },
-    "threeImages": threeImages[]{ "url": asset->url, "caption": caption },
-    videoUrl,
-    "videoThumbnail": videoThumbnail.asset->url
+    slots[] {
+      _type,
+      // textSlot
+      content, align,
+      // imageSlot
+      "image": { "url": image.asset->url, "caption": caption },
+      // gallerySlot
+      "images": images[]{ "url": asset->url, "caption": caption },
+      // videoSlot
+      url, "thumbnail": thumbnail.asset->url,
+      // beforeAfterSlot
+      "beforeImage": beforeImage.asset->url,
+      "afterImage": afterImage.asset->url,
+      beforeLabel, afterLabel, variant,
+    }
   }
 }
 ```
 
-**Trả về:** 1 object `ProjectDetailData`
+**Quan trọng:** Vì `slots[]` là polymorphic array, tất cả fields của MỌI loại slot đều phải query trong cùng 1 projection. Sanity tự trả về đúng field tương ứng với `_type` của từng item.
+
+### TypeScript Interfaces
 
 ```typescript
+// Slot types
+interface TextSlot    { _type: "textSlot"; content?: any[]; align?: "left"|"center"|"right" }
+interface ImageSlot   { _type: "imageSlot"; image?: { url: string; caption?: string } }
+interface GallerySlot { _type: "gallerySlot"; images?: { url: string; caption?: string }[] }
+interface VideoSlot   { _type: "videoSlot"; url?: string; thumbnail?: string }
+interface BeforeAfterSlot {
+  _type: "beforeAfterSlot";
+  beforeImage?: string; afterImage?: string;
+  beforeLabel?: string; afterLabel?: string;
+  variant?: "slider" | "hover" | "fade";
+}
+
+type AnySlot = TextSlot | ImageSlot | GallerySlot | VideoSlot | BeforeAfterSlot;
+
+// ContentBlock
 interface ContentBlock {
   heading?: string;
   headingAlign?: "left" | "center" | "right";
-  text?: any[];                          // Portable Text blocks
-  textAlign?: "left" | "center" | "right";
-  image?: { url: string; caption?: string };
-  images?: { url: string; caption?: string }[];
-  threeImages?: { url: string; caption?: string }[];
-  videoUrl?: string;
-  videoThumbnail?: string;
+  slots?: AnySlot[];
   swapSides?: boolean;
 }
 
-interface ProjectDetailData {
-  _id: string;
-  title: string;
-  year?: string;
-  description?: string;
-  heroImage?: string;
-  software?: string[];
-  category?: string[];
-  contentBlocks?: ContentBlock[];
-}
+// Project
+interface ProjectCardData { _id, title, year?, description?, thumbnail?, previewVideo?, software?[], category?[] }
+interface ProjectDetailData { _id, title, year?, description?, heroImage?, software?[], category?[], contentBlocks?[] }
 ```
 
 ---
 
-## 7. Trang chủ — ProjectsSection (danh sách project)
+## 8. Trang chủ — ProjectsSection (danh sách project)
 
 **File:** `src/app/(home)/component/ProjectsSection.tsx`
 
@@ -306,142 +354,76 @@ interface ProjectDetailData {
 1. Component mount → fetch PROJECTS_LIST_QUERY từ Sanity
 2. Hiển thị skeleton loading (6 cards giả)
 3. Data về → hiển thị grid ProjectCard
-4. User có thể filter theo Category + Software
+4. User filter theo Category + Software
 5. "Read more" button load thêm 6 cards
 ```
 
-### Hệ thống Filter
-
-**Desktop:** Dock component (thanh dock giống macOS) với icon category + icon software
-
-**Mobile:** 2 dropdown buttons (Software / Category) + active chips
-
-#### Thuật toán filter
+### Thuật toán filter (AND logic)
 
 ```typescript
-// Logic: AND giữa 2 nhóm, AND trong mỗi nhóm
 filteredProjects = allProjects.filter(project => {
-  // Project phải chứa TẤT CẢ category đang chọn
+  // Project phải chứa TẤT CẢ category đang chọn (AND)
   const matchCategory = selectedCategories.length === 0
     || selectedCategories.every(c => project.category?.includes(c));
-  
-  // Project phải chứa TẤT CẢ software đang chọn  
+  // Project phải chứa TẤT CẢ software đang chọn (AND)
   const matchSoftware = selectedSoftware.length === 0
     || selectedSoftware.every(s => project.software?.includes(s));
-  
   return matchCategory && matchSoftware;
 });
 ```
 
-**Ví dụ:** Chọn `Retail` + `SketchUp` → chỉ hiện project có **cả** category Retail **và** software SketchUp.
+### Filter UI
 
-#### Toggle logic
-
-```
-Click vào filter đã chọn → bỏ chọn (remove khỏi array)
-Click vào filter chưa chọn → thêm vào (push vào array)
-```
-
-#### Pagination
-
-```
-- Mặc định hiện 6 cards (visibleCount = 6)
-- Click "Read more" → visibleCount += 6
-- Khi thay đổi filter → reset visibleCount = 6
-```
-
-### Filter UI Constants
-
-```typescript
-const SOFTWARE_LIST = [
-  { name: "Adobe CC", icon: "/images/sw/AdobeCCLogo-800x418.jpg" },
-  { name: "AutoCAD", icon: "/images/sw/cad.png" },
-  { name: "SketchUp", icon: "/images/sw/Sketchup.jpg" },
-  { name: "3DsMax", icon: "/images/sw/3DsMax.png" },
-  { name: "Vray", icon: "/images/sw/Vray.png" },
-  { name: "TwinMotion", icon: "/images/sw/TwinMotion.png" },
-  { name: "Rhino", icon: "/images/sw/Rhinoceros 3D.png" },
-  { name: "Archicad", icon: "/images/sw/Archicad.jpg" },
-  { name: "Revit", icon: "/images/sw/Revit.png" },
-];
-
-const CATEGORY_LIST = [
-  { value: "retail", label: "Retail", icon: Store },
-  { value: "set-design", label: "Set Design", icon: Clapperboard },
-  { value: "hospitality", label: "Hospitality", icon: UtensilsCrossed },
-  { value: "objects", label: "Objects", icon: Sofa },
-];
-```
+- **Desktop:** Dock component (macOS-style) — category icons + software icons
+- **Mobile:** 2 dropdown buttons (Software / Category) + active chips + Clear button
+- **Pagination:** Mặc định 6 cards, "Read more" += 6, reset khi filter thay đổi
 
 ---
 
-## 8. ProjectCard — Component hiển thị card
+## 9. ProjectCard — Component hiển thị card
 
 **File:** `src/components/ui/ProjectCard.tsx`
 
 ### Cấu trúc visual
 
 ```
-┌─────────────────────────────────┐
-│      THUMBNAIL / VIDEO          │  aspect-ratio: 4/3
-│                                 │  rounded-xl
-│  [Software tags - hover]  [→]  │
-└─────────────────────────────────┘
+┌─────────────────────────────────────┐
+│      THUMBNAIL / VIDEO PREVIEW      │  aspect-ratio: 4/3
+│                                     │  rounded-xl
+│  [Software tags - hover]      [→]   │
+└─────────────────────────────────────┘
   Software tags (static, ẩn khi hover)
   Title (text-sm, semibold)
   Description (text-xs, max 2 dòng)
 ```
 
-### Logic video hover (desktop only)
+### Video hover logic (desktop only)
 
-```typescript
-// 1. Detect touch device
-const isTouch = window.matchMedia("(hover: none)").matches;
-
-// 2. Chỉ render video nếu: có URL video VÀ không phải touch device
-const showVideo = hasVideo && !isTouch;
-
-// 3. Mouse enter → play video từ đầu
-handleMouseEnter: videoRef.currentTime = 0; videoRef.play();
-
-// 4. Mouse leave → pause, reset về đầu
-handleMouseLeave: videoRef.pause(); videoRef.currentTime = 0;
 ```
-
-**UI khi hover (desktop):**
-- Thumbnail fade out (opacity-0) + nhẹ scale lên
-- Video fade in (opacity-100)
-- Gradient overlay xuất hiện
-- Software tags trượt lên từ dưới (overlay)
-- Arrow button xuất hiện góc phải trên
-
-**UI khi hover (mobile/touch):**
-- Chỉ scale thumbnail nhẹ (1.06)
-- Không có video
+1. Detect touch device: window.matchMedia("(hover: none)")
+2. Chỉ render video nếu: có URL video VÀ không phải touch device
+3. Mouse enter → play video từ đầu
+4. Mouse leave → pause, reset về đầu
+5. Mobile: chỉ scale thumbnail, không có video
+```
 
 ### Navigation
 
-Click card → navigate đến `/projects/{project._id}`
+Click card → `/projects/{project._id}`
 
 ---
 
-## 9. Project Detail Page — Thuật toán render
+## 10. Project Detail Page — Thuật toán render
 
-**File:** `src/app/projects/[id]/page.tsx`
-
-Đây là **Server Component** (async function). Quan trọng nhất.
+**File:** `src/app/projects/[id]/page.tsx` (Server Component)
 
 ### Luồng tổng quát
 
 ```
-1. Lấy `id` từ URL params
+1. Lấy id từ URL params
 2. Fetch project data từ Sanity (revalidate 60s)
-3. Nếu không tìm thấy → notFound() (hiện 404)
-4. Render page:
-   a. Hero section (ảnh lớn + gradient + nút Back)
-   b. Title + Meta (category, title, year, software)
-   c. Content Blocks (loop qua contentBlocks[])
-   d. Footer
+3. Nếu không tìm thấy → notFound() (404)
+4. Render: Hero → Title+Meta → ContentBlocks (loop) → Footer
 ```
 
 ### Cấu trúc trang
@@ -452,172 +434,92 @@ Click card → navigate đến `/projects/{project._id}`
 │              HERO IMAGE                  │  height: clamp(260px, 50vw, 680px)
 │         (full width, object-cover)       │  gradient overlay
 └─────────────────────────────────────────┘
-│ CATEGORY · CATEGORY                      │  text-[11px] uppercase
-│                                          │
-│ PROJECT TITLE          Year: 2024        │  clamp(2.4rem, 6vw, 5rem)
-│                        Software: [tags]  │
+│ CATEGORY · CATEGORY                      │
+│ PROJECT TITLE          Year | Software   │
 ├──────────────────────────────────────────┤ border-b
-│                                          │
 │         CONTENT BLOCK 1                  │  ← RenderBlock
-│                                          │
 ├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤ divide-border/40
-│                                          │
-│         CONTENT BLOCK 2                  │  ← RenderBlock
-│                                          │
-├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─┤
+│         CONTENT BLOCK 2                  │
 │         ...                              │
 └──────────────────────────────────────────┘
 │              FOOTER                      │
 └──────────────────────────────────────────┘
 ```
 
-### ⭐ Thuật toán RenderBlock — Logic phân nhánh
-
-Đây là **thuật toán cốt lõi**, quyết định layout dựa trên nội dung block:
+### ⭐ Thuật toán RenderBlock — Decision Tree
 
 ```
-INPUT: ContentBlock { heading, text, image, images, threeImages, video, ... }
-
-STEP 1: Xác định có gì
-  hasHeading    = !!block.heading
-  hasText       = block.text && block.text.length > 0
-  hasImage      = !!block.image?.url
-  hasImages     = block.images && block.images.length > 0
-  hasVideo      = !!block.videoUrl
-  hasThreeImages = block.threeImages && block.threeImages.length === 3
-
-STEP 2: Đọc alignment
-  align     = block.headingAlign ?? "center"    // heading alignment
-  textAlign = block.textAlign ?? "left"         // text alignment
-
-STEP 3: PHÂN NHÁNH LAYOUT
+RenderBlock(block)
+  │
+  ├── Có beforeAfterSlot?
+  │     YES → Render heading (nếu có) + BeforeAfterSlotClient
+  │           STOP, bỏ qua mọi slot khác
+  │
+  ├── Không có slot nào?
+  │     └── Có heading? → Render heading đơn
+  │     └── Không? → return null
+  │
+  └── Có 1+ normalSlots
+        ├── Render heading (nếu có, mb-10)
+        └── switch(normalSlots.length)
+              1 → RenderSlot(size="full")
+              2 → flex-row 2 cột + swapSides
+                  └── 2× RenderSlot(size="half")
+              3 → flex-row 3 cột (lấy 3 slot đầu)
+                  └── 3× RenderSlot(size="third")
 ```
 
-#### Nhánh 1: hasThreeImages = true → Layout "3 ảnh ngang hàng"
+### ⭐ Thuật toán RenderSlot
 
 ```
-┌──────────────────────────────────────────────┐
-│         HEADING (optional, aligned)           │
-│                                              │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐  │
-│  │   Ảnh 1   │ │   Ảnh 2   │ │   Ảnh 3   │  │
-│  │           │ │           │ │           │  │
-│  │ [caption] │ │ [caption] │ │ [caption] │  │
-│  └───────────┘ └───────────┘ └───────────┘  │
-│  grid-cols-3 (md), grid-cols-1 (mobile)      │
-└──────────────────────────────────────────────┘
-```
-- Caption hiện trong gradient overlay ở bottom ảnh
-- Hover: ảnh scale nhẹ (1.03)
-
-#### Nhánh 2: contentCount === 0 && hasHeading → Layout "Heading đơn"
-
-```
-contentCount = [hasText, hasImages || hasImage, hasVideo]
-               .filter(Boolean).length
-```
-
-```
-┌──────────────────────────────────────────────┐
-│                                              │
-│            HEADING (aligned)                  │
-│     text-4xl → sm:5xl → md:7xl               │
-│     font-palatino, bold                       │
-│                                              │
-└──────────────────────────────────────────────┘
+RenderSlot(slot, size)
+  │
+  ├── textSlot
+  │     ├── Luôn áp dụng: textAlignOnly[align]  (text-left/center/right)
+  │     └── Chỉ khi full: max-w-3xl + textContainerPosition[align]  (ml-auto/mr-auto/mx-auto)
+  │
+  ├── imageSlot
+  │     ├── Full: height 480px
+  │     └── Half/Third: height 340px
+  │     └── rounded-2xl, object-cover, figcaption bên dưới
+  │
+  ├── gallerySlot
+  │     ├── Full: height 400px
+  │     └── Half/Third: height 340px
+  │     └── Render StackGallery (cards xoay, kéo thả)
+  │
+  └── videoSlot
+        └── HeroVideoDialog (toYouTubeEmbed auto)
+        └── Fallback thumbnail: "/images/default-thumbnail.png"
 ```
 
-#### Nhánh 3: contentCount <= 1 → Layout "Full width"
-
-Khi chỉ có 1 loại content (text HOẶC image HOẶC gallery HOẶC video):
-
-```
-┌──────────────────────────────────────────────┐
-│         HEADING (optional, aligned)           │
-│                                              │
-│  ┌─────────────────────────────────────────┐ │
-│  │     TEXT (max-w-3xl, aligned)            │ │
-│  │     hoặc GALLERY (StackGallery)         │ │
-│  │     hoặc IMAGE (full width)             │ │
-│  │     hoặc VIDEO (HeroVideoDialog)        │ │
-│  └─────────────────────────────────────────┘ │
-└──────────────────────────────────────────────┘
-```
-
-**Text alignment trong layout full width:**
+### Text Alignment — Logic chi tiết
 
 ```typescript
-const textAlignClass = {
-  left:   "text-left mr-auto",   // div nằm bên trái
-  center: "text-center mx-auto", // div nằm chính giữa
-  right:  "text-right ml-auto",  // div nằm bên phải
+// 2 map riêng biệt:
+const textAlignOnly = {          // Căn chữ bên trong div
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
 };
-// Áp dụng cho div max-w-3xl
-// → text-left/center/right: căn nội dung text bên trong
-// → mr-auto/mx-auto/ml-auto: đẩy div container đến vị trí đúng
-```
 
-**Thứ tự ưu tiên render (chỉ render 1):**
-1. Text (nếu có)
-2. Gallery/images (nếu có, render StackGallery)
-3. Image đơn (nếu không có gallery)
-4. Video (nếu có)
+const textContainerPosition = {  // Đẩy container div đến vị trí
+  left: "mr-auto",
+  center: "mx-auto",
+  right: "ml-auto",
+};
 
-#### Nhánh 4: contentCount >= 2 → Layout "2 cột"
+// Áp dụng:
+// textAlignOnly → LUÔN áp dụng (cả full, half, third)
+// textContainerPosition → CHỈ khi full width (kèm max-w-3xl)
 
-Khi có 2-3 loại content:
+// Ví dụ khi align="right", size="full":
+//   class = "w-full text-right max-w-3xl ml-auto"
+//   → text căn phải + container nằm bên phải
 
-```
-┌──────────────────────────────────────────────┐
-│         HEADING (optional, aligned)           │
-│                                              │
-│  ┌────────────────┐  ┌────────────────────┐  │
-│  │                │  │                    │  │
-│  │  CONTENT A     │  │   CONTENT B        │  │
-│  │  (md:w-1/2)   │  │   (md:w-1/2)      │  │
-│  │                │  │                    │  │
-│  └────────────────┘  └────────────────────┘  │
-│  flex-row (md), flex-col (mobile)             │
-└──────────────────────────────────────────────┘
-```
-
-**Thứ tự mặc định của elements:**
-1. Text (nếu có)
-2. Gallery/Images (nếu có)
-3. Image đơn (nếu không có gallery)
-4. Video (nếu có)
-
-**swapSides logic:**
-```typescript
-// Mặc định: [text, image] → text trái, image phải
-// swapSides = true: [image, text] → image trái, text phải
-const ordered = block.swapSides ? [...elements].reverse() : elements;
-```
-
-**Text alignment trong layout 2 cột cũng hoạt động:**
-```typescript
-// div text có class: `md:w-1/2 flex flex-col justify-center ${textAlignClass[textAlign]}`
-```
-
-### Sơ đồ quyết định layout (Decision Tree)
-
-```
-                    ┌─ hasThreeImages? ─┐
-                    │                   │
-                   YES                  NO
-                    │                   │
-            [3 ảnh ngang hàng]    ┌─ contentCount? ─┐
-                                  │                  │
-                                  0                 1              >=2
-                                  │                  │              │
-                           ┌─ hasHeading? ─┐   [Full width]   [2 cột]
-                           │               │                   │
-                          YES              NO            ┌─ swapSides? ─┐
-                           │               │             │              │
-                    [Heading đơn]    [Không render      NO             YES
-                                      gì cả]           │              │
-                                                  [Thứ tự      [Đảo ngược
-                                                   mặc định]    thứ tự]
+// Ví dụ khi align="right", size="half":
+//   class = "w-full text-right"
+//   → text căn phải trong cột 50%, không cần ml-auto vì flex layout
 ```
 
 ### Portable Text Rendering
@@ -637,292 +539,246 @@ const ptComponents = {
 };
 ```
 
-### Static Generation
+### Static Generation & Revalidation
 
 ```typescript
-// Tại build time, tạo sẵn trang cho tất cả project
+// Build time: pre-render tất cả project
 export async function generateStaticParams() {
   const ids = await client.fetch(`*[_type == "project"]{ "id": _id }`);
   return ids.map(s => ({ id: s.id }));
 }
-```
 
-**Revalidation:** `{ next: { revalidate: 60 } }` → cập nhật mỗi 60 giây
+// Runtime: revalidate mỗi 60 giây
+client.fetch(query, params, { next: { revalidate: 60 } });
+```
 
 ---
 
-## 10. Các component phụ trợ
+## 11. Các component phụ trợ
 
 ### StackGallery
 
-**File:** `src/components/ui/StackGallery.tsx`
+**File:** `src/components/ui/StackGallery.tsx` (Client Component)
 
-Component gallery hiển thị ảnh dạng **"stack cards"** — nhiều ảnh xếp chồng lên nhau, user kéo/click để xem ảnh tiếp theo.
+Gallery hiển thị ảnh dạng **"stack cards"** — nhiều ảnh xếp chồng, user kéo/click để xem ảnh tiếp theo.
 
 ```typescript
-// Props cho Stack component bên trong
+// Container: w-full h-full (parent control height)
+// Stack props:
 {
-  sendToBackOnClick: true,   // click ảnh trên cùng → đẩy xuống dưới
-  autoplayDelay: 3000,       // tự chuyển ảnh mỗi 3 giây
-  pauseOnHover: true,        // dừng autoplay khi hover
-  mobileClickOnly: true,     // mobile chỉ click, không drag
-  randomRotation: true,      // ảnh xoay ngẫu nhiên
-  sensitivity: 150,          // độ nhạy drag
+  sendToBackOnClick: true,    // click ảnh trên cùng → đẩy xuống dưới
+  autoplayDelay: 3000,        // tự chuyển mỗi 3 giây
+  pauseOnHover: true,         // dừng autoplay khi hover
+  mobileClickOnly: true,      // mobile chỉ click, không drag
+  randomRotation: true,       // ảnh xoay ngẫu nhiên
+  sensitivity: 150,           // độ nhạy drag
 }
 ```
 
-Container cao cố định: `height: 340px`
+### BeforeAfterSlotClient
+
+**File:** `src/components/ui/BeforeAfterSlotClient.tsx` (Client Component)
+
+Wrapper cho image comparison, switch theo `variant`:
+
+```typescript
+// variant === "slider" → ImageComparison (drag handle, initialPosition=50)
+// variant === "hover"  → ImageComparisonHover (theo chuột)
+// variant === "fade"   → ImageComparisonFade (click toggle)
+// Container height: clamp(400px, 50vw, 600px)
+```
+
+### Image Comparison
+
+**File:** `src/components/ui/image-comparison.tsx` (Client Component)
+
+6 variants có sẵn (hiện chỉ dùng 3 cho beforeAfterSlot):
+
+| Component | Cách hoạt động |
+|-----------|---------------|
+| `ImageComparison` | Kéo thanh trượt horizontal/vertical |
+| `ImageComparisonHover` | Theo vị trí chuột, reset khi rời |
+| `ImageComparisonFade` | Click toggle before/after |
+| `ImageComparisonSplit` | 2 ảnh side-by-side cố định |
+| `ImageComparisonSwipe` | Drag swipe (Framer Motion) |
+| `ImageComparisonLens` | Lens/magnifying glass effect |
 
 ### HeroVideoDialog
 
-**File:** `src/components/ui/hero-video-dialog.tsx`
-
-Modal phát video YouTube với hiệu ứng animation:
+**File:** `src/components/ui/hero-video-dialog.tsx` (Client Component)
 
 ```
 1. Hiện thumbnail + nút Play (icon lớn, gradient)
 2. Click → mở modal fullscreen (backdrop blur)
-3. YouTube iframe load trong modal
-4. Click backdrop / nút X / Escape → đóng modal
-5. Scroll body bị lock khi modal mở (fixed position trick)
+3. YouTube iframe
+4. Click backdrop / X / Escape → đóng
+5. Scroll body bị lock khi modal mở
 ```
-
-**Animation styles:** from-bottom, from-center, from-top, from-left, from-right, fade, top-in-bottom-out, left-in-right-out
-
-Hiện tại sử dụng: `from-center`
 
 ### YouTube URL Utility
 
 **File:** `src/lib/youtube.ts`
 
 ```typescript
-// Chuyển đổi các dạng URL YouTube sang embed URL
 toYouTubeEmbed(url):
-  - Đã là /embed/ → giữ nguyên
-  - youtu.be/VIDEO_ID → https://www.youtube.com/embed/VIDEO_ID
-  - /shorts/VIDEO_ID → https://www.youtube.com/embed/VIDEO_ID
-  - ?v=VIDEO_ID → https://www.youtube.com/embed/VIDEO_ID
-  - Không match → trả lại URL gốc
+  - Đã là /embed/      → giữ nguyên
+  - youtu.be/VIDEO_ID   → youtube.com/embed/VIDEO_ID
+  - /shorts/VIDEO_ID    → youtube.com/embed/VIDEO_ID
+  - ?v=VIDEO_ID         → youtube.com/embed/VIDEO_ID
+  - Không match          → trả lại URL gốc
 ```
 
 ### BackButton
 
-**File:** `src/components/layout/back-button.tsx`
+**File:** `src/components/layout/back-button.tsx` (Client Component)
 
-```
-- Client component (dùng useRouter)
-- Click → router.back()
-- UI: nút tròn trắng/blur, có icon chevron + text "Back"
-- Hover: nền trắng hơn, shadow lớn hơn, chevron dịch trái nhẹ
-```
+- `router.back()`
+- UI: nút tròn trắng/blur, icon chevron + "Back"
 
 ---
 
-## 11. Luồng người dùng trên Studio
+## 12. Luồng người dùng trên Studio
 
 ### Tạo project mới
 
 ```
-1. Mở Sanity Studio
-2. Click "🗂️ Quản lý Projects"
-3. Click nút "+" (tạo mới)
-4. Tab "📋 Thông tin card":
-   a. Nhập "Tên project" (bắt buộc)
-   b. Nhập "Năm thực hiện"
-   c. Nhập "Mô tả ngắn" (hiện trên card, tối đa 2 dòng)
-   d. Upload "Ảnh thumbnail" (cho card)
-   e. Upload "Video preview" (MP4/WebM, tự play khi hover card trên desktop)
-   f. Chọn "Phần mềm sử dụng" (grid checkbox)
-   g. Chọn "Category" (list checkbox)
-5. Tab "📄 Trang chi tiết":
-   a. Upload "Hero Image" (ảnh lớn đầu trang)
-   b. Thêm "Các block nội dung" (xem chi tiết bên dưới)
-6. Click "Publish"
+1. Mở Sanity Studio → "🗂️ Quản lý Projects" → "+"
+2. Tab "📋 Thông tin card":
+   a. Nhập Tên project (bắt buộc)
+   b. Năm, Mô tả, Thumbnail, Video preview
+   c. Chọn Software, Category
+3. Tab "📄 Trang chi tiết":
+   a. Upload Hero Image
+   b. Thêm Content Blocks (xem bên dưới)
+4. Click "Publish"
 ```
 
-### Thêm content block (trang chi tiết)
-
-Mỗi block là một "mảnh ghép" linh hoạt. User có thể tạo nhiều block, mỗi block có thể chứa:
-
-#### Cách 1: Chỉ heading
+### Thêm content block
 
 ```
-1. Thêm block mới
-2. Nhập "Heading" → Chọn căn lề (trái/giữa/phải)
-3. Không điền gì thêm → block hiện heading lớn đơn lẻ
+1. Click "+ Add item" trong contentBlocks
+2. [Tùy chọn] Nhập Heading + căn lề
+3. Trong "Nội dung (slots)" → "Add item" → chọn loại:
+   ┌─────────────────────────────────────────────┐
+   │  📝 Văn bản          → rich text editor     │
+   │  🖼 Hình ảnh đơn     → upload 1 ảnh         │
+   │  🖼 Gallery           → upload nhiều ảnh     │
+   │  🎬 Video YouTube    → dán URL              │
+   │  🔄 Before / After   → upload 2 ảnh (⚠️ exclusive) │
+   └─────────────────────────────────────────────┘
+4. Thêm tiếp slot thứ 2, 3 (tối đa 3)
+5. Nếu đúng 2 slot → hiện toggle "↔ Đổi vị trí trái/phải"
+6. Publish → frontend cập nhật trong 60 giây
 ```
 
-#### Cách 2: Text đơn
+### Ví dụ kết hợp slots
+
+| Slots | Layout trên web |
+|-------|----------------|
+| 1× 📝 Text | Full width, max-w-3xl, căn theo align |
+| 1× 🖼 Image | Full width, height 480px, rounded |
+| 1× 🖼 Gallery | Full width Stack, height 400px |
+| 1× 🎬 Video | Full width HeroVideoDialog |
+| 1× 🔄 Before/After | Full width, clamp(400px, 50vw, 600px) |
+| 📝 Text + 🖼 Image | 2 cột: text trái, ảnh phải (toggle swap) |
+| 📝 Text + 🎬 Video | 2 cột: text trái, video phải |
+| 🖼 Gallery + 📝 Text | 2 cột: gallery trái, text phải |
+| 🎬 Video + 🎬 Video | 2 video 2 cột |
+| 🖼 + 🖼 + 🖼 | 3 ảnh 3 cột (thay thế threeImages cũ) |
+| 📝 + 🖼 + 🎬 | 3 cột: text, ảnh, video |
+| 📌 Heading đơn | Heading lớn full width, không có slot |
+| 📌 Heading + 2 slots | Heading trên, 2 cột dưới |
+
+### Sửa / Xóa project
 
 ```
-1. Thêm block mới
-2. (Tùy chọn) Nhập heading
-3. Nhập text trong editor rich text
-   - Có thể dùng: Normal, H2, H3, Blockquote
-   - Có thể dùng: Bold, Italic
-4. Chọn "Căn text": trái / giữa / phải
-   → Trái: text nằm bên trái trang, chữ căn trái
-   → Giữa: text nằm giữa trang, chữ căn giữa
-   → Phải: text nằm bên phải trang, chữ căn phải
-5. → Hiện full width (text có max-width 768px)
-```
-
-#### Cách 3: Ảnh đơn
-
-```
-1. Thêm block mới
-2. Upload 1 ảnh vào "Hình ảnh đơn"
-3. (Tùy chọn) Nhập caption
-4. → Hiện full width, rounded, caption ở dưới
-```
-
-#### Cách 4: Gallery (nhiều ảnh)
-
-```
-1. Thêm block mới
-2. Thêm nhiều ảnh vào "Gallery"
-3. (Tùy chọn) Caption cho từng ảnh
-4. → Hiện dạng StackGallery (cards xoay, kéo/click)
-```
-
-#### Cách 5: Video YouTube
-
-```
-1. Thêm block mới
-2. Nhập URL YouTube (bất kỳ dạng nào)
-3. (Tùy chọn) Upload thumbnail
-4. → Hiện thumbnail lớn + nút Play, click → modal video
-```
-
-#### Cách 6: Text + Ảnh (2 cột)
-
-```
-1. Thêm block mới
-2. Nhập text VÀ upload ảnh (hoặc gallery)
-3. → Tự động thành layout 2 cột (desktop)
-   Mặc định: text trái | ảnh phải
-4. Bật "↔ Đổi trái / phải" → ảnh trái | text phải
-5. Chọn "Căn text" → căn nội dung text
-```
-
-#### Cách 7: 3 ảnh ngang hàng
-
-```
-1. Thêm block mới
-2. KHÔNG điền text, image, gallery, video
-3. Thêm đúng 3 ảnh vào "3 ảnh ngang hàng"
-4. (Tùy chọn) Caption cho từng ảnh (hiện overlay gradient)
-5. → Hiện 3 ảnh ngang hàng full width, responsive (1 cột mobile, 3 desktop)
-```
-
-### Sửa project
-
-```
-1. Mở "🗂️ Quản lý Projects"
-2. Click vào project cần sửa
-3. Sửa bất kỳ field nào
-4. Kéo thả để sắp xếp lại thứ tự content blocks
-5. Click "Publish" → frontend tự cập nhật trong 60 giây
-```
-
-### Xóa project
-
-```
-1. Mở "🗂️ Quản lý Projects"
-2. Click vào project cần xóa
-3. Click menu "..." → "Delete"
-4. Xác nhận → project biến mất khỏi danh sách
+Sửa: Mở project → sửa fields → Publish (60s cập nhật)
+     Có thể kéo thả sắp xếp lại contentBlocks & slots
+Xóa: Mở project → "..." → Delete → Xác nhận
 ```
 
 ---
 
-## 12. Các lỗi đã fix & lưu ý
+## 13. Lưu ý quan trọng
 
-### Bug 1: Text căn phải nhưng không nằm bên phải (layout full width)
+### Kiến trúc
 
-**Nguyên nhân:** Div chứa text có `max-w-3xl` (~768px) nhỏ hơn container, nhưng chỉ có `text-right` (căn chữ bên trong div) mà không có `ml-auto` (đẩy div sang phải).
+1. **beforeAfterSlot là exclusive**: Khi block có slot này, chỉ render nó, bỏ qua slots khác. Validation trên Studio cũng ngăn chặn.
 
-**Fix:** Thêm margin-auto vào `textAlignClass`:
-```typescript
-const textAlignClass = {
-  left:   "text-left mr-auto",    // div + text căn trái
-  center: "text-center mx-auto",  // div + text căn giữa  
-  right:  "text-right ml-auto",   // div + text căn phải
-};
-```
+2. **Slot types phải đăng ký trước contentBlock** trong `schemaTypes/index.ts`.
 
-### Bug 2: Text căn phải không hoạt động trong layout 2 cột
+3. **GROQ polymorphic projection**: Tất cả fields của mọi slot type query cùng 1 object. Sanity tự trả đúng field theo `_type`.
 
-**Nguyên nhân:** Trong layout 2-3 content (line 196), div text có class cố định `"md:w-1/2 flex flex-col justify-center"` mà không áp dụng `textAlignClass`.
+4. **Server Component / Client Component**: `page.tsx` là Server Component. `StackGallery`, `BeforeAfterSlotClient`, `HeroVideoDialog`, `image-comparison` là Client Components. Next.js cho phép import client component vào server component.
 
-**Fix:** Thêm `textAlignClass[textAlign]` vào class name:
-```tsx
-<div className={`md:w-1/2 flex flex-col justify-center ${textAlignClass[textAlign]}`}>
-```
+### Render
 
-### Lưu ý quan trọng cho developer
+5. **Text alignment 2 maps**: `textAlignOnly` (luôn áp dụng) + `textContainerPosition` (chỉ full width). Tách ra để tránh bug căn lề trong layout 2 cột.
 
-1. **threeImages là mode "exclusive"**: Khi có 3 ảnh ngang hàng, tất cả field khác bị ẩn trên Studio. Logic render cũng check threeImages TRƯỚC tiên.
+6. **images vs image priority**: Nếu cả `images` gallery và `image` đơn cùng tồn tại trong old data, `images` được ưu tiên. Với Polymorphic Slots mới, mỗi loại là 1 slot riêng nên không còn conflict.
 
-2. **images vs image**: `images` (gallery) được ưu tiên hơn `image` (đơn). Nếu có cả 2, chỉ images được render.
+### Performance
 
-3. **swapSides chỉ hoạt động khi >= 2 content**: Toggle này ẩn trên Studio khi chỉ có 1 loại content.
+7. **Revalidation 60s**: Frontend cập nhật tối đa 60 giây sau publish.
 
-4. **Revalidation 60s**: Sau khi publish trên Studio, frontend cần tối đa 60 giây để cập nhật.
+8. **generateStaticParams**: Pre-render tại build time cho mọi project → SEO tốt.
 
-5. **previewVideo chỉ hoạt động desktop**: Touch device (mobile) không có hover nên video bị bỏ qua.
+9. **previewVideo chỉ desktop**: Touch device bỏ qua video hover.
 
-6. **YouTube URL tự động convert**: User có thể dán bất kỳ dạng URL YouTube nào, utility sẽ tự chuyển thành embed URL.
+### Data
 
-7. **generateStaticParams**: Trang chi tiết được pre-render tại build time cho tất cả project, cải thiện SEO và performance.
+10. **Filter logic AND**: Chọn nhiều filter → project phải match TẤT CẢ filter.
 
-8. **Filter logic dùng AND**: Chọn nhiều filter → project phải match TẤT CẢ filter đã chọn, không phải chỉ 1.
+11. **YouTube URL tự convert**: `toYouTubeEmbed()` hỗ trợ mọi dạng URL YouTube.
 
 ---
 
-## Sơ đồ tổng quan Data Flow
+## Sơ đồ Data Flow tổng quan
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      SANITY STUDIO                          │
-│                                                             │
-│   User tạo/sửa Project                                      │
-│     ├─ Tab "Thông tin card"                                  │
-│     │    └─ title, year, description, thumbnail,             │
-│     │       previewVideo, software[], category[]             │
-│     └─ Tab "Trang chi tiết"                                  │
-│          └─ heroImage                                        │
-│          └─ contentBlocks[] ← mỗi block:                     │
-│               ├─ heading + headingAlign                       │
-│               ├─ text (Portable Text) + textAlign             │
-│               ├─ image + caption                              │
-│               ├─ images[] + caption (gallery)                 │
-│               ├─ threeImages[] + caption                      │
-│               ├─ videoUrl + videoThumbnail                    │
-│               └─ swapSides                                    │
-│                                                             │
-│   User click "Publish" ──────────────────┐                   │
-└──────────────────────────────────────────┼───────────────────┘
-                                           │
-                                           ▼
-                                    Sanity API (CDN)
-                                           │
-                    ┌──────────────────────┼──────────────────────┐
-                    │                      │                      │
-                    ▼                      ▼                      │
-          PROJECTS_LIST_QUERY    PROJECT_DETAIL_QUERY              │
-          (trang chủ)            (trang chi tiết)                 │
-                    │                      │                      │
-                    ▼                      ▼                      │
-          ProjectsSection         ProjectDetailPage               │
-          ├─ Filter (Dock/Dropdown)  ├─ Hero Image                │
-          ├─ Grid ProjectCards       ├─ Title + Meta              │
-          └─ Pagination              ├─ RenderBlock (loop)        │
-                                     │   ├─ 3-ảnh-ngang-hàng     │
-                                     │   ├─ Heading đơn           │
-                                     │   ├─ Full-width content    │
-                                     │   └─ 2-cột layout          │
-                                     └─ Footer                    │
-                                                                  │
-                                    revalidate: 60s ──────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                     SANITY STUDIO                         │
+│                                                           │
+│  User tạo/sửa Project                                     │
+│    ├─ Tab "Thông tin card"                                 │
+│    │    └─ title, year, description, thumbnail,            │
+│    │       previewVideo, software[], category[]            │
+│    └─ Tab "Trang chi tiết"                                 │
+│         └─ heroImage                                       │
+│         └─ contentBlocks[] ← mỗi block:                    │
+│              ├─ heading + headingAlign                      │
+│              ├─ swapSides                                   │
+│              └─ slots[] ← polymorphic:                      │
+│                   ├─ textSlot    { content, align }         │
+│                   ├─ imageSlot   { image, caption }         │
+│                   ├─ gallerySlot { images[] }               │
+│                   ├─ videoSlot   { url, thumbnail }         │
+│                   └─ beforeAfterSlot { before, after,       │
+│                        labels, variant }                    │
+│                                                           │
+│  Publish ─────────────────────────┐                        │
+└───────────────────────────────────┼────────────────────────┘
+                                    ▼
+                             Sanity API (CDN)
+                                    │
+                 ┌──────────────────┼──────────────────┐
+                 │                  │                   │
+                 ▼                  ▼                   │
+       PROJECTS_LIST_QUERY  PROJECT_DETAIL_QUERY        │
+       (trang chủ)          (trang chi tiết)            │
+                 │                  │                   │
+                 ▼                  ▼                   │
+       ProjectsSection     ProjectDetailPage            │
+       ├─ Filter (Dock)    ├─ Hero Image                │
+       ├─ Grid Cards       ├─ Title + Meta              │
+       └─ Pagination       ├─ RenderBlock (loop)        │
+                           │   └─ RenderSlot (switch)   │
+                           │       ├─ textSlot          │
+                           │       ├─ imageSlot         │
+                           │       ├─ gallerySlot       │
+                           │       ├─ videoSlot         │
+                           │       └─ beforeAfterSlot   │
+                           └─ Footer                    │
+                                                        │
+                          revalidate: 60s ──────────────┘
 ```

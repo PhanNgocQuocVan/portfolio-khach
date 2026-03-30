@@ -9,35 +9,48 @@ export default defineType({
   preview: {
     select: {
       heading: "heading",
-      text: "text",
-      image: "image",
-      images: "images",
-      videoUrl: "videoUrl",
-      threeImages: "threeImages",
+      slots: "slots",
     },
-    prepare({ heading, text, image, images, videoUrl, threeImages }) {
-      const parts = [];
+    prepare({ heading, slots }) {
+      const parts: string[] = [];
       if (heading) parts.push(`📌 "${heading}"`);
-      if (threeImages && threeImages.length === 3) parts.push("🖼×3 Row");
-      if (text && text.length > 0) parts.push("📝 Text");
-      if (image) parts.push("🖼 Hình");
-      if (images && images.length > 0)
-        parts.push(`🖼×${images.length} Gallery`);
-      if (videoUrl) parts.push("🎬 Video");
+
+      if (slots && Array.isArray(slots)) {
+        for (const slot of slots) {
+          switch (slot._type) {
+            case "textSlot":
+              parts.push("📝 Text");
+              break;
+            case "imageSlot":
+              parts.push("🖼 Hình");
+              break;
+            case "gallerySlot": {
+              const count = slot.images?.length ?? 0;
+              parts.push(`🖼×${count} Gallery`);
+              break;
+            }
+            case "videoSlot":
+              parts.push("🎬 Video");
+              break;
+            case "beforeAfterSlot":
+              parts.push("🔄 Before/After");
+              break;
+          }
+        }
+      }
+
       return {
-        title: parts.length > 0 ? parts.join(" + ") : "Block trống",
+        title: parts.length > 0 ? parts.join(" · ") : "Block trống",
       };
     },
   },
 
   fields: [
-    // ── HEADING ──────────────────────────────────────────────────
+    // ── HEADING (ngoài slots) ──────────────────────────────────────
     defineField({
       name: "heading",
-      title: "Heading (tiêu đề lớn)",
+      title: "Heading (tiêu đề lớn, tùy chọn)",
       type: "string",
-      description:
-        "Hiện dạng tiêu đề lớn giữa trang, có thể dùng độc lập hoặc kết hợp với content khác",
     }),
 
     defineField({
@@ -57,167 +70,55 @@ export default defineType({
       hidden: ({ parent }) => !parent?.heading,
     }),
 
-    // ── TEXT ─────────────────────────────────────────────────────
+    // ── SLOTS (polymorphic array) ──────────────────────────────────
     defineField({
-      name: "text",
-      title: "Nội dung văn bản",
-      type: "array",
-      of: [
-        {
-          type: "block",
-          styles: [
-            { title: "Normal", value: "normal" },
-            { title: "H2", value: "h2" },
-            { title: "H3", value: "h3" },
-            { title: "Blockquote", value: "blockquote" },
-          ],
-          marks: {
-            decorators: [
-              { title: "Bold", value: "strong" },
-              { title: "Italic", value: "em" },
-            ],
-          },
-        },
-      ],
-      hidden: ({ parent }) =>
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    defineField({
-      name: "textAlign",
-      title: "Căn text",
-      type: "string",
-      options: {
-        list: [
-          { title: "← Trái", value: "left" },
-          { title: "— Giữa", value: "center" },
-          { title: "→ Phải", value: "right" },
-        ],
-        layout: "radio",
-        direction: "horizontal",
-      },
-      initialValue: "left",
-      hidden: ({ parent }) =>
-        !parent?.text || parent?.text.length === 0 ||
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    // ── SINGLE IMAGE ─────────────────────────────────────────────
-    defineField({
-      name: "image",
-      title: "Hình ảnh đơn",
-      type: "image",
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "caption",
-          title: "Caption",
-          type: "string",
-        }),
-      ],
-      hidden: ({ parent }) =>
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    // ── GALLERY (nhiều ảnh) ───────────────────────────────────────
-    defineField({
-      name: "images",
-      title: "Gallery (nhiều ảnh)",
-      description: "Thêm nhiều ảnh — hiện dạng grid tự động",
-      type: "array",
-      of: [
-        {
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "caption",
-              title: "Caption",
-              type: "string",
-            }),
-          ],
-        },
-      ],
-      hidden: ({ parent }) =>
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    // ── VIDEO ────────────────────────────────────────────────────
-    defineField({
-      name: "videoUrl",
-      title: "Video URL (YouTube)",
-      type: "url",
-      description: "Dán bất kỳ dạng link YouTube: watch?v=, youtu.be/, shorts/",
-      hidden: ({ parent }) =>
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    // ── 3 ẢNH NGANG HÀNG ─────────────────────────────────────────
-    defineField({
-      name: "threeImages",
-      title: "3 ảnh ngang hàng (full width)",
+      name: "slots",
+      title: "Nội dung",
       description:
-        "Thêm đúng 3 ảnh — hiện ngang hàng, chiếm toàn bộ chiều rộng. Không kết hợp với text/video.",
+        "Thêm các slot nội dung. 1 slot = full width, 2 slot = 2 cột, 3 slot = 3 cột. Before/After luôn full width. Tối đa 3 slot.",
       type: "array",
       of: [
-        {
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "caption",
-              title: "Caption",
-              type: "string",
-            }),
-          ],
-        },
+        { type: "textSlot" },
+        { type: "imageSlot" },
+        { type: "gallerySlot" },
+        { type: "videoSlot" },
+        { type: "beforeAfterSlot" },
       ],
-      validation: (R) =>
-        R.custom((value) => {
-          if (value && value.length > 0 && value.length !== 3) {
-            return "Phải thêm đúng 3 ảnh";
+      validation: (Rule) =>
+        Rule.custom((slots: any[] | undefined) => {
+          if (!slots || slots.length === 0) return true;
+
+          const hasBeforeAfter = slots.some(
+            (s) => s._type === "beforeAfterSlot",
+          );
+
+          // Nếu có Before/After → phải là slot duy nhất
+          if (hasBeforeAfter && slots.length > 1) {
+            return "🔄 Before/After phải là slot duy nhất trong block. Vui lòng xóa các slot khác.";
           }
+
+          // Tối đa 3 slot
+          if (slots.length > 3) {
+            return `Tối đa 3 slot mỗi block (đang có ${slots.length}). Vui lòng tạo block mới cho nội dung thêm.`;
+          }
+
           return true;
         }),
-      hidden: ({ parent }) => {
-        const hasOther =
-          (parent?.text && parent.text.length > 0) ||
-          parent?.image ||
-          (parent?.images && parent.images.length > 0) ||
-          parent?.videoUrl;
-        return !!hasOther;
-      },
     }),
 
-    defineField({
-      name: "videoThumbnail",
-      title: "Video Thumbnail",
-      type: "image",
-      options: { hotspot: true },
-      description: "Ảnh preview trước khi play (để trống dùng ảnh mặc định)",
-      hidden: ({ parent }) =>
-        !parent?.videoUrl ||
-        !!(parent?.threeImages && parent.threeImages.length === 3),
-    }),
-
-    // ── LAYOUT CONTROL ───────────────────────────────────────────
+    // ── SWAP SIDES ─────────────────────────────────────────────────
     defineField({
       name: "swapSides",
-      title: "↔ Đổi trái / phải",
+      title: "↔ Đổi vị trí trái / phải",
       type: "boolean",
-      description:
-        "Khi có 2 content (vd: text + ảnh) — mặc định text trái / ảnh phải. Bật lên để đổi ngược lại.",
+      description: "Đảo thứ tự 2 cột khi có 2 slot",
       initialValue: false,
       hidden: ({ parent }) => {
-        // Ẩn nếu có threeImages
-        if (parent?.threeImages && parent.threeImages.length === 3) return true;
-        // Chỉ hiện khi có ít nhất 2 loại content
-        const count = [
-          parent?.text && parent.text.length > 0,
-          parent?.image || (parent?.images && parent.images.length > 0),
-          parent?.videoUrl,
-        ].filter(Boolean).length;
-        return count < 2;
+        const slots = (parent?.slots as any[]) ?? [];
+        const normalSlots = slots.filter(
+          (s) => s._type !== "beforeAfterSlot",
+        );
+        return normalSlots.length !== 2;
       },
     }),
   ],

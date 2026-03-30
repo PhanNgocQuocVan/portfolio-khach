@@ -24,25 +24,88 @@ export const PROJECT_DETAIL_QUERY = `
       heading,
       headingAlign,
       swapSides,
-      text,
-      textAlign,
-      "image": {
-        "url": image.asset->url,
-        "caption": image.caption
-      },
-      "images": images[]{
-        "url": asset->url,
-        "caption": caption
-      },
-      "threeImages": threeImages[]{
-        "url": asset->url,
-        "caption": caption
-      },
-      videoUrl,
-      "videoThumbnail": videoThumbnail.asset->url
+      slots[] {
+        _type,
+
+        // textSlot
+        content,
+        align,
+
+        // imageSlot
+        "image": {
+          "url": image.asset->url,
+          "caption": caption
+        },
+
+        // gallerySlot
+        "images": images[]{
+          "url": asset->url,
+          "caption": caption
+        },
+
+        // videoSlot
+        url,
+        "thumbnail": thumbnail.asset->url,
+
+        // beforeAfterSlot
+        "beforeImage": beforeImage.asset->url,
+        "afterImage":  afterImage.asset->url,
+        beforeLabel,
+        afterLabel,
+        variant,
+      }
     }
   }
 `;
+
+// ── Slot Interfaces ───────────────────────────────────────────────
+
+export interface TextSlot {
+  _type: "textSlot";
+  content?: any[]; // Portable Text blocks
+  align?: "left" | "center" | "right";
+}
+
+export interface ImageSlot {
+  _type: "imageSlot";
+  image?: { url: string; caption?: string };
+}
+
+export interface GallerySlot {
+  _type: "gallerySlot";
+  images?: { url: string; caption?: string }[];
+}
+
+export interface VideoSlot {
+  _type: "videoSlot";
+  url?: string;
+  thumbnail?: string;
+}
+
+export interface BeforeAfterSlot {
+  _type: "beforeAfterSlot";
+  beforeImage?: string;
+  afterImage?: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  variant?: "slider" | "hover" | "fade";
+}
+
+export type AnySlot =
+  | TextSlot
+  | ImageSlot
+  | GallerySlot
+  | VideoSlot
+  | BeforeAfterSlot;
+
+// ── ContentBlock & Project Interfaces ─────────────────────────────
+
+export interface ContentBlock {
+  heading?: string;
+  headingAlign?: "left" | "center" | "right";
+  slots?: AnySlot[];
+  swapSides?: boolean;
+}
 
 export interface ProjectCardData {
   _id: string;
@@ -53,28 +116,6 @@ export interface ProjectCardData {
   previewVideo?: string;
   software?: string[];
   category?: string[];
-}
-
-export interface ContentBlock {
-  heading?: string;
-  headingAlign?: "left" | "center" | "right";
-  text?: any[];
-  textAlign?: "left" | "center" | "right";
-  image?: {
-    url: string;
-    caption?: string;
-  };
-  images?: {
-    url: string;
-    caption?: string;
-  }[];
-  threeImages?: {
-    url: string;
-    caption?: string;
-  }[];
-  videoUrl?: string;
-  videoThumbnail?: string;
-  swapSides?: boolean;
 }
 
 export interface ProjectDetailData {

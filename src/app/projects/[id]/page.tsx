@@ -3,15 +3,22 @@ import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
 import {
-  ContentBlock,
+  type AnySlot,
+  type BeforeAfterSlot,
+  type ContentBlock,
+  type GallerySlot,
+  type ImageSlot,
   PROJECT_DETAIL_QUERY,
-  ProjectDetailData,
+  type ProjectDetailData,
+  type TextSlot,
+  type VideoSlot,
 } from "@/sanity/schemaTypes/queries";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import { toYouTubeEmbed } from "@/lib/youtube";
 import Footer from "@/components/layout/footer";
 import { BackButton } from "@/components/layout/back-button";
 import StackGallery from "@/components/ui/StackGallery";
+import BeforeAfterSlotClient from "@/components/ui/BeforeAfterSlotClient";
 
 // ── Portable Text components ──────────────────────────────────────
 const ptComponents = {
@@ -45,204 +52,187 @@ const ptComponents = {
   },
 };
 
-// ── Heading alignment ─────────────────────────────────────────────
-const alignClass = {
+// ── Heading alignment map ─────────────────────────────────────────
+const headingAlignClass = {
   left: "text-left",
   center: "text-center",
   right: "text-right",
 } as const;
 
-const textAlignClass = {
-  left: "text-left mr-auto",
-  center: "text-center mx-auto",
-  right: "text-right ml-auto",
+// ── Text alignment ────────────────────────────────────────────────
+const textAlignOnly = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
 } as const;
 
-// ── Video widget ──────────────────────────────────────────────────
-function VideoBlock({ block }: { block: ContentBlock }) {
+const textContainerPosition = {
+  left: "mr-auto",
+  center: "mx-auto",
+  right: "ml-auto",
+} as const;
+
+// ── HeadingEl ─────────────────────────────────────────────────────
+function HeadingEl({
+  text,
+  align = "center",
+  className = "",
+}: {
+  text: string;
+  align?: "left" | "center" | "right";
+  className?: string;
+}) {
   return (
-    <HeroVideoDialog
-      animationStyle="from-center"
-      videoSrc={toYouTubeEmbed(block.videoUrl!)}
-      thumbnailSrc={block.videoThumbnail ?? "/images/default-thumbnail.png"}
-      thumbnailAlt="Project video"
-      className="w-full"
-    />
+    <h2
+      className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino ${headingAlignClass[align]} ${className}`}
+    >
+      {text}
+    </h2>
   );
 }
 
-// ── Content block renderer ────────────────────────────────────────
-function RenderBlock({ block, index }: { block: ContentBlock; index: number }) {
-  const hasHeading = !!block.heading;
-  const hasText = !!(block.text && block.text.length > 0);
-  const hasImage = !!block.image?.url;
-  const hasImages = !!(block.images && block.images.length > 0);
-  const hasVideo = !!block.videoUrl;
-  const hasThreeImages = !!(
-    block.threeImages && block.threeImages.length === 3
-  );
-  const align = block.headingAlign ?? "center";
-  const textAlign = block.textAlign ?? "left";
+// ── RenderSlot ────────────────────────────────────────────────────
+function RenderSlot({
+  slot,
+  size,
+}: {
+  slot: AnySlot;
+  size: "full" | "half" | "third";
+}) {
+  const imgHeight = size === "full" ? "480px" : "340px";
 
-  // ── 3 ảnh ngang hàng full width ─────────────────────────────────
-  if (hasThreeImages) {
+  switch (slot._type) {
+    case "textSlot": {
+      const ts = slot as TextSlot;
+      const align = ts.align ?? "left";
+      const txtAlign = textAlignOnly[align];
+      const containerPos = textContainerPosition[align];
+
+      return (
+        <div
+          className={`w-full ${txtAlign} ${size === "full" ? `max-w-3xl ${containerPos}` : ""}`}
+        >
+          <PortableText value={ts.content ?? []} components={ptComponents} />
+        </div>
+      );
+    }
+
+    case "imageSlot": {
+      const is = slot as ImageSlot;
+      if (!is.image?.url) return null;
+      return (
+        <figure>
+          <div className="flex items-center justify-center">
+            <img
+              src={is.image.url}
+              alt={is.image.caption ?? ""}
+              className="w-full h-auto object-contain rounded-2xl"
+            />
+          </div>
+          {is.image.caption && (
+            <figcaption className="mt-2 text-sm text-foreground/40 text-center">
+              {is.image.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    }
+
+    case "gallerySlot": {
+      const gs = slot as GallerySlot;
+      if (!gs.images?.length) return null;
+      return (
+        <StackGallery images={gs.images} />
+      );
+    }
+
+    case "videoSlot": {
+      const vs = slot as VideoSlot;
+      if (!vs.url) return null;
+      return (
+        <HeroVideoDialog
+          animationStyle="from-center"
+          videoSrc={toYouTubeEmbed(vs.url)}
+          thumbnailSrc={vs.thumbnail ?? "/images/default-thumbnail.png"}
+          thumbnailAlt="Project video"
+          className="w-full"
+        />
+      );
+    }
+
+    default:
+      return null;
+  }
+}
+
+// ── RenderBlock ───────────────────────────────────────────────────
+function RenderBlock({ block }: { block: ContentBlock }) {
+  const slots = block.slots ?? [];
+  const heading = block.heading;
+  const align = block.headingAlign ?? "center";
+
+  // 1. Check beforeAfterSlot → exclusive render
+  const beforeAfterSlot = slots.find((s) => s._type === "beforeAfterSlot") as
+    | BeforeAfterSlot
+    | undefined;
+
+  if (beforeAfterSlot) {
     return (
-      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
-        {hasHeading && (
-          <h2
-            className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-10 ${alignClass[align]}`}
-          >
-            {block.heading}
-          </h2>
+      <section className="max-w-[1440px] mx-auto px-6 py-12 md:px-20">
+        {heading && (
+          <HeadingEl text={heading} align={align} className="mb-10" />
         )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-          {block.threeImages!.map((img, i) => (
-            <div key={i} className="relative overflow-hidden rounded-2xl group">
-              <img
-                src={img.url}
-                alt={img.caption ?? ""}
-                className="w-full rounded-2xl transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-              />
-              {img.caption && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 md:p-5">
-                  <p className="text-xs md:text-sm text-white/80 font-medium">
-                    {img.caption}
-                  </p>
-                </div>
-              )}
+        <BeforeAfterSlotClient slot={beforeAfterSlot} />
+      </section>
+    );
+  }
+
+  // 2. Filter normal slots
+  const normalSlots = slots.filter((s) => s._type !== "beforeAfterSlot");
+
+  // 3. No slots → heading only or nothing
+  if (normalSlots.length === 0) {
+    if (!heading) return null;
+    return (
+      <section className="max-w-[1440px] mx-auto px-6 py-12 md:px-20">
+        <HeadingEl text={heading} align={align} />
+      </section>
+    );
+  }
+
+  // 4. Render based on slot count
+  return (
+    <section className="max-w-[1440px] mx-auto px-6 py-12 md:px-20">
+      {heading && <HeadingEl text={heading} align={align} className="mb-10" />}
+
+      {/* 1 slot → full width */}
+      {normalSlots.length === 1 && (
+        <RenderSlot slot={normalSlots[0]} size="full" />
+      )}
+
+      {/* 2 slots → 2 columns */}
+      {normalSlots.length === 2 && (
+        <div className="flex flex-col gap-10 md:flex-row md:items-center">
+          {(block.swapSides ? [...normalSlots].reverse() : normalSlots).map(
+            (slot, i) => (
+              <div key={i} className="md:w-1/2">
+                <RenderSlot slot={slot} size="half" />
+              </div>
+            ),
+          )}
+        </div>
+      )}
+
+      {/* 3+ slots → 3 columns */}
+      {normalSlots.length >= 3 && (
+        <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          {normalSlots.slice(0, 3).map((slot, i) => (
+            <div key={i} className="md:w-1/3">
+              <RenderSlot slot={slot} size="third" />
             </div>
           ))}
         </div>
-      </section>
-    );
-  }
-
-  // Số content chính (không tính heading)
-  // images và image đơn tính chung 1 slot
-  const contentCount = [hasText, hasImages || hasImage, hasVideo].filter(
-    Boolean,
-  ).length;
-
-  // ── Heading đơn ──────────────────────────────────────────────
-  if (hasHeading && contentCount === 0) {
-    return (
-      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
-        <h2
-          className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino ${alignClass[align]}`}
-        >
-          {block.heading}
-        </h2>
-      </section>
-    );
-  }
-
-  // ── 1 content → full width ────────────────────────────────────
-  if (contentCount <= 1) {
-    return (
-      <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
-        {hasHeading && (
-          <h2
-            className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-8 ${alignClass[align]}`}
-          >
-            {block.heading}
-          </h2>
-        )}
-
-        {hasText && (
-          <div className={`max-w-3xl ${textAlignClass[textAlign]}`}>
-            <PortableText value={block.text!} components={ptComponents} />
-          </div>
-        )}
-
-        {/* Gallery → Stack */}
-        {hasImages && (
-          <div className="w-full">
-            <StackGallery images={block.images!} />
-          </div>
-        )}
-
-        {/* Ảnh đơn */}
-        {!hasImages && hasImage && (
-          <figure>
-            <img
-              src={block.image!.url}
-              alt={block.image?.caption ?? ""}
-              className="w-full rounded-2xl"
-            />
-            {block.image?.caption && (
-              <figcaption className="mt-3 text-center text-sm text-foreground/40">
-                {block.image.caption}
-              </figcaption>
-            )}
-          </figure>
-        )}
-
-        {hasVideo && (
-          <div className="w-full">
-            <VideoBlock block={block} />
-          </div>
-        )}
-      </section>
-    );
-  }
-
-  // ── 2-3 content → 2 cột, swapSides kiểm soát thứ tự ─────────
-  // Thứ tự mặc định: text → images/image → video
-  // swapSides = true → đảo ngược thứ tự
-  const elements: React.ReactNode[] = [];
-
-  if (hasText)
-    elements.push(
-      <div key="text" className={`md:w-1/2 flex flex-col justify-center ${textAlignClass[textAlign]}`}>
-        <PortableText value={block.text!} components={ptComponents} />
-      </div>,
-    );
-
-  if (hasImages)
-    elements.push(
-      <div key="images" className="md:w-1/2">
-        <StackGallery images={block.images!} />
-      </div>,
-    );
-
-  if (!hasImages && hasImage)
-    elements.push(
-      <figure key="image" className="md:w-1/2">
-        <img
-          src={block.image!.url}
-          alt={block.image?.caption ?? ""}
-          className="w-full rounded-2xl"
-        />
-        {block.image?.caption && (
-          <figcaption className="mt-2 text-sm text-foreground/40">
-            {block.image.caption}
-          </figcaption>
-        )}
-      </figure>,
-    );
-
-  if (hasVideo)
-    elements.push(
-      <div key="video" className="md:w-1/2">
-        <VideoBlock block={block} />
-      </div>,
-    );
-
-  // swapSides đảo thứ tự, nếu không bật thì giữ nguyên
-  const ordered = block.swapSides ? [...elements].reverse() : elements;
-
-  return (
-    <section className="max-w-7xl mx-auto px-6 py-12 md:px-20">
-      {hasHeading && (
-        <h2
-          className={`text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight font-palatino mb-10 ${alignClass[align]}`}
-        >
-          {block.heading}
-        </h2>
       )}
-      <div className="flex flex-col gap-10 md:flex-row md:items-center">
-        {ordered}
-      </div>
     </section>
   );
 }
@@ -282,7 +272,7 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* Title + Meta */}
-      <section className="max-w-7xl mx-auto px-6 md:px-10 py-8 md:py-14 border-b border-border">
+      <section className="max-w-[1440px] mx-auto px-6 md:px-10 py-8 md:py-14 border-b border-border">
         {project.category && project.category.length > 0 && (
           <p className="mb-4 md:mb-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/40">
             {project.category.join(" · ")}
@@ -333,7 +323,7 @@ export default async function ProjectDetailPage({
       {project.contentBlocks && project.contentBlocks.length > 0 && (
         <div className="divide-y divide-border/40">
           {project.contentBlocks.map((block, index) => (
-            <RenderBlock key={index} block={block} index={index} />
+            <RenderBlock key={index} block={block} />
           ))}
         </div>
       )}

@@ -1,3 +1,5 @@
+"use client";
+
 import { GripHorizontal, GripVertical } from "lucide-react";
 import { motion, useMotionValue, useTransform } from "motion/react";
 import type React from "react";
