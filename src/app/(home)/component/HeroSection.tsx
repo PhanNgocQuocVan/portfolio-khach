@@ -231,15 +231,24 @@ export default function HeroSection() {
                   "0 0 0 7px rgba(255,255,255,0.22), 0 0 0 8px rgba(0,0,0,0.06)",
               }}
             />
-            {/* Photo */}
-            <Image
-              src="/images/annie-doan.png"
-              alt="Annie Doan"
-              width={290}
-              height={290}
-              className="relative z-10 w-full h-full object-cover object-top rounded-full"
+            {/* Photo — khung tròn clip ảnh, giống desktop */}
+            <div
+              className="relative z-10 w-full h-full rounded-full overflow-hidden"
               style={{ boxShadow: "0 12px 48px rgba(0,0,0,0.16)" }}
-            />
+            >
+              <Image
+                src="/images/annie-doan.png"
+                alt="Annie Doan"
+                fill
+                className="object-cover"
+                quality={100}
+                style={{
+                  objectPosition: "-5px 18%", // mobile: điều chỉnh vị trí ảnh
+                  transform: "scale(1.6)", // mobile: 1.2 = phóng to 120%, 0.8 = thu nhỏ
+                  transformOrigin: "center 30%", // mobile: điểm neo khi scale
+                }}
+              />
+            </div>
           </div>
         </div>
 
