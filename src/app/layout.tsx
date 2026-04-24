@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio-Annie",
+  title: "Portfolio-doan-thituanh",
   description:
     "Annie Doan's personal portfolio showcasing her work and experience in interior design for international luxury retail.",
 };

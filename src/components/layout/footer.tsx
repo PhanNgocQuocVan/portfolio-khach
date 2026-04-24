@@ -95,36 +95,7 @@ export default function Footer() {
           © {new Date().getFullYear()} Doan Thi Tu Anh.
         </span>
 
-        {/* Right: portfolio link */}
-        <div className="flex items-center gap-4">
-          {[
-            {
-              label: "Portfolio drive",
-              href: "https://drive.google.com/file/d/1tQtbFTdxclnGLHbMrgSsz4PFf236lTmm/view",
-            },
-          ].map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
-              className="flex items-center gap-1 text-[10px] md:text-xs text-white/40 hover:text-white/80 transition-colors"
-            >
-              {label}
-              <svg
-                width="9"
-                height="9"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="7" y1="17" x2="17" y2="7" />
-                <polyline points="7 7 17 7 17 17" />
-              </svg>
-            </a>
-          ))}
-        </div>
+
       </div>
     </footer>
   );

@@ -5,7 +5,8 @@ import { client } from "@/sanity/lib/client";
 import {
   type AnySlot,
   type BeforeAfterSlot,
-  type ContentBlock,
+  type ContentBlockData,
+  type AnyBlock,
   type GallerySlot,
   type ImageSlot,
   PROJECT_DETAIL_QUERY,
@@ -19,6 +20,7 @@ import Footer from "@/components/layout/footer";
 import { BackButton } from "@/components/layout/back-button";
 import StackGallery from "@/components/ui/StackGallery";
 import BeforeAfterSlotClient from "@/components/ui/BeforeAfterSlotClient";
+import ZoomableImage from "@/components/ui/ZoomableImage";
 
 // ── Portable Text components ──────────────────────────────────────
 const ptComponents = {
@@ -123,7 +125,7 @@ function RenderSlot({
       return (
         <figure>
           <div className="flex items-center justify-center">
-            <img
+            <ZoomableImage
               src={is.image.url}
               alt={is.image.caption ?? ""}
               className="w-full h-auto object-contain rounded-2xl"
@@ -166,7 +168,7 @@ function RenderSlot({
 }
 
 // ── RenderBlock ───────────────────────────────────────────────────
-function RenderBlock({ block }: { block: ContentBlock }) {
+function RenderBlock({ block }: { block: ContentBlockData }) {
   const slots = block.slots ?? [];
   const heading = block.heading;
   const align = block.headingAlign ?? "center";
@@ -237,6 +239,18 @@ function RenderBlock({ block }: { block: ContentBlock }) {
   );
 }
 
+// ── RenderAnyBlock ────────────────────────────────────────────────
+function RenderAnyBlock({ block }: { block: AnyBlock }) {
+  if (block._type === "dividerBlock") {
+    if (block.style === "spacer") return <div className="h-16 md:h-32" />;
+    if (block.style === "dashed") return <hr className="border-t border-dashed border-border/60 my-12 mx-6 md:mx-20" />;
+    return <hr className="border-t border-border/40 my-12 mx-6 md:mx-20" />;
+  }
+
+  // default to contentBlock (or fallback if _type is missing on old data)
+  return <RenderBlock block={block as ContentBlockData} />;
+}
+
 // ── Page ──────────────────────────────────────────────────────────
 export default async function ProjectDetailPage({
   params,
@@ -259,7 +273,7 @@ export default async function ProjectDetailPage({
         style={{ height: "clamp(260px, 50vw, 680px)" }}
       >
         {project.heroImage && (
-          <img
+          <ZoomableImage
             src={project.heroImage}
             alt={project.title}
             className="w-full h-full object-cover"
@@ -321,9 +335,9 @@ export default async function ProjectDetailPage({
 
       {/* Content Blocks */}
       {project.contentBlocks && project.contentBlocks.length > 0 && (
-        <div className="divide-y divide-border/40">
+        <div className="flex flex-col">
           {project.contentBlocks.map((block, index) => (
-            <RenderBlock key={index} block={block} />
+            <RenderAnyBlock key={index} block={block} />
           ))}
         </div>
       )}

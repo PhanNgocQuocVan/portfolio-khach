@@ -125,7 +125,7 @@ export default defineType({
         "Mỗi block có thể có text, hình, hoặc cả hai. Tự động xen kẽ trái/phải.",
       type: "array",
       group: "detail",
-      of: [{ type: "contentBlock" }],
+      of: [{ type: "contentBlock" }, { type: "dividerBlock" }],
     }),
   ],
 });

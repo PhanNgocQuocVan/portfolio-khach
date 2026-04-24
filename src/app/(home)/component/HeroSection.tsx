@@ -243,7 +243,7 @@ export default function HeroSection() {
                 className="object-cover"
                 quality={100}
                 style={{
-                  objectPosition: "-5px 18%", // mobile: điều chỉnh vị trí ảnh
+                  objectPosition: "-5px 12%", // mobile: điều chỉnh vị trí ảnh
                   transform: "scale(1.6)", // mobile: 1.2 = phóng to 120%, 0.8 = thu nhỏ
                   transformOrigin: "center 30%", // mobile: điểm neo khi scale
                 }}

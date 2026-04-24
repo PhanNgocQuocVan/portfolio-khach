@@ -5,6 +5,7 @@ import project from "../schemas/project";
 import contentBlock from "../schemas/contentBlock";
 import experience from "../schemas/experience";
 import education from "../schemas/education";
+import dividerBlock from "../schemas/dividerBlock";
 
 // Slot sub-schemas
 import textSlot from "../schemas/slots/textSlot";
@@ -27,5 +28,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     project,
     experience,
     education,
+    dividerBlock,
   ],
 };

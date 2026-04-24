@@ -21,6 +21,8 @@ export const PROJECT_DETAIL_QUERY = `
     "heroImage": heroImage.asset->url,
     software, category,
     contentBlocks[] {
+      _type,
+      style,
       heading,
       headingAlign,
       swapSides,
@@ -100,12 +102,20 @@ export type AnySlot =
 
 // ── ContentBlock & Project Interfaces ─────────────────────────────
 
-export interface ContentBlock {
+export interface ContentBlockData {
+  _type: "contentBlock";
   heading?: string;
   headingAlign?: "left" | "center" | "right";
   slots?: AnySlot[];
   swapSides?: boolean;
 }
+
+export interface DividerBlockData {
+  _type: "dividerBlock";
+  style?: "default" | "dashed" | "spacer";
+}
+
+export type AnyBlock = ContentBlockData | DividerBlockData;
 
 export interface ProjectCardData {
   _id: string;
@@ -126,7 +136,7 @@ export interface ProjectDetailData {
   heroImage?: string;
   software?: string[];
   category?: string[];
-  contentBlocks?: ContentBlock[];
+  contentBlocks?: AnyBlock[];
 }
 
 // ── EXPERIENCE ────────────────────────────────────────────────────
